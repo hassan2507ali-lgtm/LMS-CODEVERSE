@@ -8,7 +8,7 @@
   <nav class="hidden md:flex gap-6 text-sm font-medium">
   <a href="{{ route('landing') }}" class="text-gray-600 hover:text-teal-500 font-medium">Home</a>
   <a href="{{ route('courses.course') }}" class="text-gray-600 hover:text-teal-500 font-medium">Courses</a>
-    <a href="course" class="hover:text-green-600">Courses</a>
+  <a href="{{ route('practice.index') }}" class="text-gray-600 hover:text-teal-500 font-medium">Practice</a>
     <a href="#" class="hover:text-green-600">Contact us</a>
     <a href="#" class="hover:text-green-600">FAQ’s</a>
   </nav>
