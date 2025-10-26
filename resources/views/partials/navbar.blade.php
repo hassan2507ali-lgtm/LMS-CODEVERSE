@@ -1,19 +1,21 @@
+
+
 <header class="flex justify-between items-center px-6 py-4 sticky top-0 z-50 transition-all duration-300 bg-transparent" id="navbar">
   <div class="text-xl font-bold text-yellow-600 flex items-center gap-2">
     <img src="{{ asset('images/codeverse.png') }}" alt="logo" class="w-8 h-8">
     Code Verse
   </div>
   <nav class="hidden md:flex gap-6 text-sm font-medium">
-    <a href="landing" class="hover:text-green-600">Home</a>
-    <a href="practice" class="hover:text-green-600">practice</a>
+  <a href="{{ route('landing') }}" class="text-gray-600 hover:text-teal-500 font-medium">Home</a>
+  <a href="{{ route('courses.course') }}" class="text-gray-600 hover:text-teal-500 font-medium">Courses</a>
     <a href="course" class="hover:text-green-600">Courses</a>
     <a href="#" class="hover:text-green-600">Contact us</a>
     <a href="#" class="hover:text-green-600">FAQ’s</a>
   </nav>
-  <div class="flex gap-3 text-sm font-medium">
-    <a href="signin" class="text-gray-600 hover:text-green-600">Sign in</a>
-    <a href="#" class="bg-teal-400 text-white px-4 py-2 rounded hover:bg-green-600">Create free account</a>
-  </div>
+  <div class="flex items-center gap-4">
+            <a href="#" class="text-gray-600 hover:text-teal-500 font-medium">Login</a>
+            <a href="#" class="bg-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600 font-semibold">Sign Up</a>
+        </div>
 </header>
 
 <script>
