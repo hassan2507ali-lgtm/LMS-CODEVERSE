@@ -16,11 +16,13 @@ class Course extends Model
 
     /**
      * Mendefinisikan relasi one-to-many ke Model Module.
-     * Satu Course memiliki banyak Module.
+     * (Satu Course memiliki banyak Module)
+     * Nama method ini (modules) akan digunakan untuk mengakses relasi: $course->modules
      */
-    public function modules(): HasMany // <-- Method relasi
+    public function modules(): HasMany
     {
-        // Laravel akan otomatis mencari foreign key 'course_id' di tabel 'modules'
-        return $this->hasMany(Module::class);
+        // Laravel otomatis mencari foreign key 'course_id' di tabel 'modules'
+        // Kita tambahkan orderBy agar modul selalu terurut
+        return $this->hasMany(Module::class)->orderBy('order', 'asc');
     }
 }
