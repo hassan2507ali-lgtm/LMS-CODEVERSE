@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::create('lessons', function (Blueprint $table) {
             $table->id();
+            // <-- BARIS PENTING: Foreign Key ke tabel modules
+            $table->foreignId('module_id')
+                  ->constrained('modules')
+                  ->onDelete('cascade'); // Jika module dihapus, lesson ikut terhapus
+            $table->string('title'); // <-- Kolom Judul Pelajaran
+            $table->enum('content_type', ['video', 'text', 'image'])->default('text'); // <-- Tipe Konten
+            $table->text('content'); // <-- Isi Konten (URL video, teks, path gambar)
+            $table->integer('order')->default(0); // <-- Kolom Urutan Pelajaran
             $table->timestamps();
         });
     }
