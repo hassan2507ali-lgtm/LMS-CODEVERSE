@@ -40,25 +40,51 @@
             </p>
         </div>
 
-        <!-- === BAGIAN DAFTAR MODUL (DIPERBARUI) === -->
-        <div class="mt-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Materi Pembelajaran</h2>
-            <ul class="space-y-3">
-                {{-- Loop melalui relasi $course->modules --}}
-                {{-- Menggunakan @forelse untuk menangani jika tidak ada modul --}}
-                @forelse ($course->modules as $module)
-                <li class="flex items-center p-4 bg-gray-50 rounded-md border border-gray-200">
-                    <svg class="w-6 h-6 text-teal-500 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    {{-- Akses title sebagai properti objek --}}
-                    <span class="text-gray-800">{{ $module->title }}</span>
-                    {{-- Nanti bisa ditambahkan link ke lesson atau detail modul --}}
-                </li>
-                @empty
-                {{-- Tampil jika $course->modules kosong --}}
-                <li class="text-gray-500 italic">Belum ada modul untuk kursus ini.</li>
-                @endforelse
-            </ul>
+      
+       <!-- === BAGIAN DAFTAR MODUL & LESSON (DIPERBARUI) === -->
+    <div class="mt-8">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Materi Pembelajaran</h2>
+        <div class="space-y-6"> {{-- Beri jarak antar modul --}}
+            {{-- Loop melalui relasi $course->modules --}}
+            @forelse ($course->modules as $module)
+            <div class="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                {{-- Judul Modul --}}
+                <div class="flex items-center p-4 bg-gray-100 border-b border-gray-200">
+                    <svg class="w-6 h-6 text-indigo-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ $module->title }}</h3>
+                </div>
+
+                {{-- Daftar Lesson di dalam Modul --}}
+                <ul class="divide-y divide-gray-200">
+                    {{-- Loop melalui relasi $module->lessons --}}
+                    @forelse ($module->lessons as $lesson)
+                    <li class="flex items-center justify-between p-4 hover:bg-gray-100 transition duration-150">
+                        <div class="flex items-center">
+                            {{-- Icon berdasarkan tipe konten --}}
+                            @if ($lesson->content_type == 'video')
+                                <svg class="w-5 h-5 text-red-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            @elseif ($lesson->content_type == 'text')
+                                <svg class="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            @else {{-- 'image' --}}
+                                <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            @endif
+                            <span class="text-gray-700">{{ $lesson->title }}</span>
+                        </div>
+                        {{-- Tombol "Mulai" (belum berfungsi) --}}
+                        <a href="#" class="text-xs text-teal-600 hover:text-teal-800 font-semibold uppercase tracking-wider">Mulai</a>
+                    </li>
+                    @empty
+                    <li class="px-4 py-3 text-gray-500 italic text-sm">Belum ada pelajaran di modul ini.</li>
+                    @endforelse
+                </ul>
+            </div>
+            @empty
+            {{-- Tampil jika $course->modules kosong --}}
+            <p class="text-gray-500 italic">Belum ada modul untuk kursus ini.</p>
+            @endforelse
         </div>
+    </div>
+    <!-- === AKHIR BAGIAN DAFTAR MODUL & LESSON === -->
         <!-- === AKHIR BAGIAN DAFTAR MODUL === -->
 
     </div>

@@ -46,7 +46,7 @@ class CourseController extends Controller // Pastikan extends Controller
         // Cari kursus berdasarkan slug, DAN sertakan relasi 'modules' yang sudah diurutkan
         // Kita menggunakan 'with' untuk Eager Loading
         $course = Course::where('slug', $slug)
-                        ->with('modules') // Meminta Laravel untuk mengambil modul terkait
+                        ->with('modules.lessons') // Meminta Laravel untuk mengambil modul terkait
                         ->firstOrFail(); // Otomatis 404 jika tidak ditemukan
 
         // Variabel $course sekarang sudah berisi informasi kursus DAN daftar modulnya ($course->modules)
