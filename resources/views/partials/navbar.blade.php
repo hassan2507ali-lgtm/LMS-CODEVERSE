@@ -13,8 +13,8 @@
     <a href="#" class="hover:text-green-600">FAQ’s</a>
   </nav>
   <div class="flex items-center gap-4">
-            <a href="#" class="text-gray-600 hover:text-teal-500 font-medium">Login</a>
-            <a href="#" class="bg-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600 font-semibold">Sign Up</a>
+            <a href="{{ route('login') }}" class="text-gray-600 hover:text-teal-500 font-medium">Login</a>
+            <a href="{{ route('register') }}" class="bg-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600 font-semibold">Sign Up</a>
         </div>
 </header>
 
