@@ -39,12 +39,22 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            // 'is_admin' akan otomatis 0 (false) karena default di database
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // --- INI BAGIAN YANG KITA UBAH ---
+        // Cek apakah pengguna yang baru daftar adalah admin
+        if ($user->is_admin) {
+            // Jika admin, arahkan ke dashboard
+            return redirect(route('dashboard', absolute: false));
+        }
+
+        // Jika user biasa, arahkan ke halaman utama (landing)
+        return redirect(route('landing', absolute: false));
+        // --- AKHIR PERUBAHAN ---
     }
 }

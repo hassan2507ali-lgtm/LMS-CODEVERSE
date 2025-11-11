@@ -4,25 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany; // <-- Tambahkan ini
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Course extends Model
 {
     use HasFactory;
 
+    /**
+     * Kolom yang diizinkan untuk diisi secara massal (mass assignable).
+     * PASTIKAN SEMUA KOLOM FORM ADA DI SINI.
+     * @var array<int, string>
+     */
     protected $fillable = [
-        'title', 'slug', 'description', 'thumbnail', 'price', 'is_free',
+        'title',
+        'slug',         // <-- Pastikan 'slug' ada di sini
+        'description',
+        'thumbnail',
+        'price',
+        'is_free',
     ];
 
     /**
      * Mendefinisikan relasi one-to-many ke Model Module.
-     * (Satu Course memiliki banyak Module)
-     * Nama method ini (modules) akan digunakan untuk mengakses relasi: $course->modules
      */
     public function modules(): HasMany
     {
-        // Laravel otomatis mencari foreign key 'course_id' di tabel 'modules'
-        // Kita tambahkan orderBy agar modul selalu terurut
         return $this->hasMany(Module::class)->orderBy('order', 'asc');
     }
 }

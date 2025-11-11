@@ -31,7 +31,7 @@
                     <input id="name" type="text" name="name" 
                            class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm" 
                            required autofocus autocomplete="name" value="{{ old('name') }}"
-                           placeholder="Nama Anda">
+                           placeholder="Nama ">
                 </div>
 
                 <!-- Email Address -->
@@ -40,7 +40,7 @@
                     <input id="email" type="email" name="email" 
                            class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm" 
                            required autocomplete="username" value="{{ old('email') }}"
-                           placeholder="anda@email.com">
+                           placeholder="Email">
                 </div>
 
                 <!-- Password -->
