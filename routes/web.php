@@ -19,6 +19,7 @@ Route::get('/courses', [CourseController::class, 'index'])->name('courses.course
 Route::get('/courses/{slug}', [CourseController::class, 'show'])->name('courses.show');
 Route::get('/practice', [PracticeController::class, 'index'])->name('practice.index');
 Route::get('/practice/{slug}', [PracticeController::class, 'show'])->name('practice.show');
+Route::get('/practice/{slug}/exercise/{exercise}', [PracticeController::class, 'startExercise'])->name('practice.exercise.start');
 
 
 // --- 2. Rute Autentikasi (Bawaan Breeze) ---
@@ -57,7 +58,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::delete('/{lesson}', [AdminController::class, 'destroyLesson'])->name('destroy');
     });
 
-    // === Grup Rute CRUD Practice (INI YANG BARU) ===
+    // === Grup Rute CRUD Practice ===
     Route::prefix('admin/practice')->name('admin.practice.')->group(function () {
         Route::get('/', [PracticeAdminController::class, 'index'])->name('index');
         Route::get('/create', [PracticeAdminController::class, 'create'])->name('create');
@@ -65,6 +66,13 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/{practice}/edit', [PracticeAdminController::class, 'edit'])->name('edit');
         Route::put('/{practice}', [PracticeAdminController::class, 'update'])->name('update');
         Route::delete('/{practice}', [PracticeAdminController::class, 'destroy'])->name('destroy');
+        
+        // Manage Exercises
+        Route::get('/{practice}/exercises', [PracticeAdminController::class, 'manageExercises'])->name('exercises.manage');
+        Route::post('/{practice}/exercises', [PracticeAdminController::class, 'storeExercise'])->name('exercises.store');
+        Route::get('/{practice}/exercises/{exercise}/edit', [PracticeAdminController::class, 'editExercise'])->name('exercises.edit');
+        Route::put('/{practice}/exercises/{exercise}', [PracticeAdminController::class, 'updateExercise'])->name('exercises.update');
+        Route::delete('/{practice}/exercises/{exercise}', [PracticeAdminController::class, 'destroyExercise'])->name('exercises.destroy');
     });
 
 });
