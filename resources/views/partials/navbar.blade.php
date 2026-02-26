@@ -12,7 +12,7 @@
       {{-- Saya perbaiki nama route Anda dari 'courses.course' ke 'courses.index' (sesuai standar) --}}
       <a href="{{ route('courses.course') }}" class="text-gray-600 hover:text-teal-500 font-medium">Courses</a> 
       <a href="{{ route('practice.index') }}" class="text-gray-600 hover:text-teal-500 font-medium">Practice</a>
-      <a href="#" class="hover:text-green-600">Contact us</a>
+      <a href="{{ route('my-courses') }}" class="hover:text-green-600">My Course</a>
       <a href="#" class="hover:text-green-600">FAQ’s</a>
 
       {{-- (Opsional) Tampilkan link ke Dashboard HANYA JIKA pengguna adalah Admin --}}

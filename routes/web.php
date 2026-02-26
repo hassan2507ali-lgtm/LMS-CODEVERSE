@@ -5,7 +5,14 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\PracticeController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\PracticeAdminController; // <-- Pastikan ini di-impor
+use App\Http\Controllers\PracticeAdminController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\MyCourseController; 
+
+// --- Rute Pancingan (Taruh di luar agar bisa dites siapa saja) ---
+Route::get('/tes-halaman', function () {
+    return 'Halo! File web.php ini berhasil terbaca.';
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -17,16 +24,35 @@ use App\Http\Controllers\PracticeAdminController; // <-- Pastikan ini di-impor
 Route::get('/', [PageController::class, 'landing'])->name('landing');
 Route::get('/courses', [CourseController::class, 'index'])->name('courses.course');
 Route::get('/courses/{slug}', [CourseController::class, 'show'])->name('courses.show');
+// Halaman Katalog Practice (Bisa dilihat publik agar tertarik)
 Route::get('/practice', [PracticeController::class, 'index'])->name('practice.index');
-Route::get('/practice/{slug}', [PracticeController::class, 'show'])->name('practice.show');
-Route::get('/practice/{slug}/exercise/{exercise}', [PracticeController::class, 'startExercise'])->name('practice.exercise.start');
 
 
 // --- 2. Rute Autentikasi (Bawaan Breeze) ---
 require __DIR__.'/auth.php';
 
 
-// --- 3. Rute Panel Admin (Dilindungi 'auth', 'verified', dan 'admin') ---
+// --- 3. Rute Pengguna Terdaftar (Wajib Login) ---
+Route::middleware(['auth'])->group(function () {
+    
+    // === Rute Latihan / Practice (Wajib Login) ===
+    // Halaman daftar soal (show)
+    Route::get('/practice/{slug}', [PracticeController::class, 'show'])->name('practice.show');
+    // Halaman ruang kerja coding (exercise)
+    Route::get('/practice/{slug}/exercise/{exercise}', [PracticeController::class, 'startExercise'])->name('practice.exercise.start');
+
+    // Rute untuk memproses pembelian/checkout kelas menggunakan Midtrans (atau simulasi)
+    Route::post('/checkout/{course}', [CheckoutController::class, 'process'])->name('checkout.process');
+    
+    // Rute Halaman Kelas Saya 
+    Route::get('/my-courses', [MyCourseController::class, 'index'])->name('my-courses');
+
+    // Rute Ruang Belajar (HARUS LOGIN & PUNYA KELAS)
+    Route::get('/courses/{slug}/learn/{lesson}', [CourseController::class, 'learn'])->name('courses.learn');
+});
+
+
+// --- 4. Rute Panel Admin (Dilindungi 'auth', 'verified', dan 'admin') ---
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     
     // Rute Dashboard

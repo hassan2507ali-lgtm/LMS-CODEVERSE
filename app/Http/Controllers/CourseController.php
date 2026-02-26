@@ -1,23 +1,20 @@
 <?php
 
-namespace App\Http\Controllers; // Pastikan namespace benar
+namespace App\Http\Controllers;
 
-use App\Models\Course; // Impor Model Course
+use App\Models\Course;
+use App\Models\Lesson;
+use App\Models\Enrollment;
 use Illuminate\Http\Request;
-// use App\Http\Controllers\Controller; // Controller dasar biasanya otomatis dikenali
+use Illuminate\Support\Facades\Auth;
 
-class CourseController extends Controller // Pastikan extends Controller
+class CourseController extends Controller
 {
-    // Daftar kategori statis (Sementara)
     private function getStaticCategories()
     {
         return ['Programming', 'Data Science & Analytics', 'UI/UX Design', 'Lainnya'];
-        // return Course::select('category')->whereNotNull('category')->distinct()->pluck('category')->sort()->values()->toArray();
     }
 
-    /**
-     * Method index: Menampilkan daftar kursus DARI DATABASE dengan filter.
-     */
     public function index(Request $request)
     {
         $allCategories = $this->getStaticCategories();
@@ -27,31 +24,46 @@ class CourseController extends Controller // Pastikan extends Controller
 
         if ($requestedCategory && in_array($requestedCategory, $allCategories)) {
              $activeCategory = $requestedCategory;
-             // Nanti tambahkan: $query->where('category', $requestedCategory);
         }
 
         $courses = $query->latest()->paginate(12);
         $displayCategories = array_merge(['Semua'], $allCategories);
 
-        // Mengarah ke view 'course' sesuai nama file Anda
         return view('courses.course', compact('courses', 'displayCategories', 'activeCategory'));
     }
 
-    /**
-     * Method show: Menampilkan detail satu kursus DARI DATABASE berdasarkan slug.
-     * --- PERUBAHAN DI METHOD INI ---
-     */
     public function show($slug)
     {
-        // Cari kursus berdasarkan slug, DAN sertakan relasi 'modules' yang sudah diurutkan
-        // Kita menggunakan 'with' untuk Eager Loading
         $course = Course::where('slug', $slug)
-                        ->with('modules.lessons') // Meminta Laravel untuk mengambil modul terkait
-                        ->firstOrFail(); // Otomatis 404 jika tidak ditemukan
+                        ->with('modules.lessons') 
+                        ->firstOrFail(); 
 
-        // Variabel $course sekarang sudah berisi informasi kursus DAN daftar modulnya ($course->modules)
-
-        // Kirim data kursus (yang sudah termasuk modul) ke view
         return view('courses.show', compact('course'));
     }
-} // <-- Pastikan kurung kurawal tutup ini ada
+
+    // === METHOD BARU UNTUK RUANG BELAJAR ===
+    public function learn($slug, $lessonId)
+    {
+        // 1. Ambil data course dan lesson yang sedang dibuka
+        $course = Course::where('slug', $slug)->with('modules.lessons')->firstOrFail();
+        $currentLesson = Lesson::findOrFail($lessonId);
+
+        // 2. Keamanan: Cek apakah user sudah login dan benar-benar sudah beli kelasnya
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $isEnrolled = Enrollment::where('user_id', Auth::id())
+                                ->where('course_id', $course->id)
+                                ->exists();
+
+        // Jika nekat buka URL padahal belum beli, tendang balik ke halaman detail kelas
+        if (!$isEnrolled) {
+            return redirect()->route('courses.show', $course->slug)
+                             ->with('error', 'Akses ditolak. Kamu harus membeli kelas ini terlebih dahulu.');
+        }
+
+        // 3. Tampilkan halaman ruang belajar
+        return view('courses.learn', compact('course', 'currentLesson'));
+    }
+}
