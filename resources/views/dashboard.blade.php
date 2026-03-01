@@ -6,21 +6,25 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
             <div class="p-6 text-gray-900">
                 
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold">Kelola Kursus</h2>
-                    <a href="{{ route('admin.courses.create') }}" class="px-5 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 font-semibold">
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <div class="flex items-center gap-4">
+                        <h2 class="text-2xl font-semibold">Kelola Kursus</h2>
+                        <a href="{{ route('admin.practice.index') }}" class="px-4 py-2 bg-teal-500 text-white text-sm rounded-md hover:bg-teal-600 font-semibold shadow-sm transition flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                            Ke Kelola Practice
+                        </a>
+                    </div>
+                    <a href="{{ route('admin.courses.create') }}" class="px-5 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 font-semibold shadow-sm transition">
                         + Tambah Kursus Baru
                     </a>
                 </div>
 
-                <!-- Pesan Sukses (jika ada) -->
                 @if (session('success'))
                     <div class="mb-4 bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-md">
                         {{ session('success') }}
                     </div>
                 @endif
 
-                <!-- Tabel Daftar Kursus -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -32,7 +36,6 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            {{-- Loop data $courses dari AdminController --}}
                             @forelse ($courses as $course)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -52,26 +55,14 @@
                                         </span>
                                     </td>
                                     
-                                    {{-- INI BAGIAN AKSI YANG SUDAH LENGKAP --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <a href="{{ route('admin.courses.content', $course->id) }}" class="text-teal-600 hover:text-teal-900 mr-3">Manage Content</a>
+                                        <a href="{{ route('admin.courses.edit', $course->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
                                         
-                                        {{-- 1. Link ke Halaman Kelola Konten --}}
-                                        <a href="{{ route('admin.courses.content', $course->id) }}" class="text-teal-600 hover:text-teal-900 mr-3">
-                                            Manage Content
-                                        </a>
-
-                                        {{-- 2. Link ke Halaman Edit Kursus --}}
-                                        <a href="{{ route('admin.courses.edit', $course->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                            Edit
-                                        </a>
-                                        
-                                        {{-- 3. Form untuk Hapus Kursus --}}
                                         <form action="{{ route('admin.courses.destroy', $course->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Anda yakin ingin menghapus kursus ini? Data tidak bisa dikembalikan.');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">
-                                                Hapus
-                                            </button>
+                                            <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
                                         </form>
                                     </td>
                                 </tr>

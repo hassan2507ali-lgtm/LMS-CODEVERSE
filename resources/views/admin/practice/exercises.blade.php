@@ -4,7 +4,6 @@
 <div class="py-12 pt-24">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-        <!-- Tombol Kembali -->
         <div class="mb-4">
             <a href="{{ route('admin.practice.index') }}" class="inline-flex items-center text-teal-500 hover:text-teal-700 font-semibold transition duration-300">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,19 +13,16 @@
             </a>
         </div>
 
-        <!-- Judul Halaman -->
         <h2 class="text-3xl font-semibold mb-6 text-gray-800">
             Kelola Exercises: <span class="font-bold text-teal-600">{{ $practice->title }}</span>
         </h2>
 
-        <!-- Pesan Sukses -->
         @if (session('success'))
             <div class="mb-4 bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-md">
                 {{ session('success') }}
             </div>
         @endif
 
-        <!-- Error Validasi -->
         @if ($errors->any())
             <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
                 <ul class="list-disc list-inside text-sm">
@@ -37,21 +33,18 @@
             </div>
         @endif
 
-        <!-- Form Tambah Exercise Baru -->
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200 mb-6">
             <div class="p-6 text-gray-900">
                 <h3 class="text-xl font-semibold mb-4">Tambah Exercise Baru</h3>
                 <form action="{{ route('admin.practice.exercises.store', $practice->id) }}" method="POST" class="space-y-4">
                     @csrf
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Title -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Judul Exercise *</label>
                             <input type="text" name="title" id="title" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500" placeholder="Contoh: Basic Fade Animation" required>
                         </div>
 
-                        <!-- Difficulty -->
                         <div>
                             <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-1">Tingkat Kesulitan *</label>
                             <select name="difficulty" id="difficulty" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
@@ -60,33 +53,37 @@
                                 <option value="hard">Hard (Sulit)</option>
                             </select>
                         </div>
+
+                        <div>
+                            <label for="language" class="block text-sm font-medium text-gray-700 mb-1">Bahasa Pemrograman *</label>
+                            <select name="language" id="language" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
+                                <option value="python">Python</option>
+                                <option value="html">HTML/CSS</option>
+                                <option value="javascript">JavaScript</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <!-- Description -->
                     <div>
                         <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Singkat</label>
                         <input type="text" name="description" id="description" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500" placeholder="Deskripsi singkat tentang exercise ini">
                     </div>
 
-                    <!-- Instructions -->
                     <div>
                         <label for="instructions" class="block text-sm font-medium text-gray-700 mb-1">Instruksi (Step-by-step)</label>
                         <textarea name="instructions" id="instructions" rows="4" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500" placeholder="1. Langkah pertama&#10;2. Langkah kedua&#10;3. Langkah ketiga"></textarea>
                     </div>
 
-                    <!-- Starter Code -->
                     <div>
                         <label for="starter_code" class="block text-sm font-medium text-gray-700 mb-1">Starter Code (Kode Awal)</label>
                         <textarea name="starter_code" id="starter_code" rows="6" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 font-mono text-sm" placeholder="// Kode awal untuk user"></textarea>
                     </div>
 
-                    <!-- Solution Code -->
                     <div>
                         <label for="solution_code" class="block text-sm font-medium text-gray-700 mb-1">Solution Code (Solusi)</label>
                         <textarea name="solution_code" id="solution_code" rows="6" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 font-mono text-sm" placeholder="// Kode solusi lengkap"></textarea>
                     </div>
 
-                    <!-- Hints -->
                     <div>
                         <label for="hints" class="block text-sm font-medium text-gray-700 mb-1">Hints (Petunjuk)</label>
                         <textarea name="hints" id="hints" rows="3" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500" placeholder="- Hint 1&#10;- Hint 2&#10;- Hint 3"></textarea>
@@ -101,7 +98,6 @@
             </div>
         </div>
 
-        <!-- Daftar Exercises yang Sudah Ada -->
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
             <div class="p-6 text-gray-900">
                 <h3 class="text-xl font-semibold mb-4">Daftar Exercises ({{ $practice->exercises->count() }})</h3>
@@ -121,6 +117,9 @@
                                         {{ $exercise->difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' : '' }}
                                         {{ $exercise->difficulty === 'hard' ? 'bg-red-100 text-red-700' : '' }}">
                                         {{ ucfirst($exercise->difficulty) }}
+                                    </span>
+                                    <span class="inline-block px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 ml-1 font-mono">
+                                        {{ strtoupper($exercise->language ?? 'PYTHON') }}
                                     </span>
                                 </div>
                             </div>
@@ -158,13 +157,11 @@
                         </div>
 
                         <div class="flex flex-col gap-2 ml-4">
-                            <!-- Edit Button -->
                             <a href="{{ route('admin.practice.exercises.edit', [$practice->id, $exercise->id]) }}" 
                                class="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 text-sm font-semibold text-center transition-colors">
                                 Edit
                             </a>
 
-                            <!-- Delete Button -->
                             <form action="{{ route('admin.practice.exercises.destroy', [$practice->id, $exercise->id]) }}" 
                                   method="POST" 
                                   onsubmit="return confirm('Yakin hapus exercise ini?');">

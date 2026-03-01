@@ -40,6 +40,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/practice/{slug}', [PracticeController::class, 'show'])->name('practice.show');
     // Halaman ruang kerja coding (exercise)
     Route::get('/practice/{slug}/exercise/{exercise}', [PracticeController::class, 'startExercise'])->name('practice.exercise.start');
+    
+    // ROUTE BARU: Untuk menandai soal selesai secara diam-diam (AJAX)
+    Route::post('/practice/exercise/{exercise}/complete', [PracticeController::class, 'markCompleted'])->name('practice.exercise.complete');
 
     // Rute untuk memproses pembelian/checkout kelas menggunakan Midtrans (atau simulasi)
     Route::post('/checkout/{course}', [CheckoutController::class, 'process'])->name('checkout.process');

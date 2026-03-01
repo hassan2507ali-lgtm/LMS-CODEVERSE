@@ -4,7 +4,6 @@
 <div class="py-12 pt-24">
     <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
 
-        <!-- Tombol Kembali -->
         <div class="mb-4">
             <a href="{{ route('admin.practice.exercises.manage', $practice->id) }}" class="inline-flex items-center text-teal-500 hover:text-teal-700 font-semibold transition duration-300">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,12 +13,10 @@
             </a>
         </div>
 
-        <!-- Judul Halaman -->
         <h2 class="text-3xl font-semibold mb-6 text-gray-800">
             Edit Exercise: <span class="font-bold text-teal-600">{{ $exercise->title }}</span>
         </h2>
 
-        <!-- Error Validasi -->
         @if ($errors->any())
             <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
                 <ul class="list-disc list-inside text-sm">
@@ -30,56 +27,57 @@
             </div>
         @endif
 
-        <!-- Form Edit Exercise -->
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
             <div class="p-6 text-gray-900">
                 <form action="{{ route('admin.practice.exercises.update', [$practice->id, $exercise->id]) }}" method="POST" class="space-y-4">
                     @csrf
                     @method('PUT')
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Title -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Judul Exercise *</label>
                             <input type="text" name="title" id="title" value="{{ old('title', $exercise->title) }}" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
                         </div>
 
-                        <!-- Difficulty -->
                         <div>
                             <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-1">Tingkat Kesulitan *</label>
                             <select name="difficulty" id="difficulty" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
-                                <option value="easy" {{ $exercise->difficulty === 'easy' ? 'selected' : '' }}>Easy (Mudah)</option>
-                                <option value="medium" {{ $exercise->difficulty === 'medium' ? 'selected' : '' }}>Medium (Sedang)</option>
-                                <option value="hard" {{ $exercise->difficulty === 'hard' ? 'selected' : '' }}>Hard (Sulit)</option>
+                                <option value="easy" {{ old('difficulty', $exercise->difficulty) === 'easy' ? 'selected' : '' }}>Easy (Mudah)</option>
+                                <option value="medium" {{ old('difficulty', $exercise->difficulty) === 'medium' ? 'selected' : '' }}>Medium (Sedang)</option>
+                                <option value="hard" {{ old('difficulty', $exercise->difficulty) === 'hard' ? 'selected' : '' }}>Hard (Sulit)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="language" class="block text-sm font-medium text-gray-700 mb-1">Bahasa Pemrograman *</label>
+                            <select name="language" id="language" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
+                                <option value="python" {{ old('language', $exercise->language) === 'python' ? 'selected' : '' }}>Python</option>
+                                <option value="html" {{ old('language', $exercise->language) === 'html' ? 'selected' : '' }}>HTML/CSS</option>
+                                <option value="javascript" {{ old('language', $exercise->language) === 'javascript' ? 'selected' : '' }}>JavaScript</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Description -->
                     <div>
                         <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Singkat</label>
                         <input type="text" name="description" id="description" value="{{ old('description', $exercise->description) }}" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500">
                     </div>
 
-                    <!-- Instructions -->
                     <div>
                         <label for="instructions" class="block text-sm font-medium text-gray-700 mb-1">Instruksi (Step-by-step)</label>
                         <textarea name="instructions" id="instructions" rows="4" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500">{{ old('instructions', $exercise->instructions) }}</textarea>
                     </div>
 
-                    <!-- Starter Code -->
                     <div>
                         <label for="starter_code" class="block text-sm font-medium text-gray-700 mb-1">Starter Code (Kode Awal)</label>
                         <textarea name="starter_code" id="starter_code" rows="8" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 font-mono text-sm">{{ old('starter_code', $exercise->starter_code) }}</textarea>
                     </div>
 
-                    <!-- Solution Code -->
                     <div>
                         <label for="solution_code" class="block text-sm font-medium text-gray-700 mb-1">Solution Code (Solusi)</label>
                         <textarea name="solution_code" id="solution_code" rows="8" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 font-mono text-sm">{{ old('solution_code', $exercise->solution_code) }}</textarea>
                     </div>
 
-                    <!-- Hints -->
                     <div>
                         <label for="hints" class="block text-sm font-medium text-gray-700 mb-1">Hints (Petunjuk)</label>
                         <textarea name="hints" id="hints" rows="3" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500">{{ old('hints', $exercise->hints) }}</textarea>
