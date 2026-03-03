@@ -62,4 +62,19 @@ class PracticeController extends Controller
 
         return view('practice.exercise', compact('practice', 'exercise'));
     }
+
+    // 4. FITUR BARU: Menerima sinyal dari Auto-Grader untuk menandai selesai
+    public function markCompleted(Request $request, PracticeExercise $exercise)
+    {
+        $user = $request->user();
+        
+        // Cek apakah user belum pernah menyelesaikan soal ini sebelumnya
+        if (!$user->completedExercises->contains($exercise->id)) {
+            // Jika belum, stempel/simpan progressnya ke pivot table
+            $user->completedExercises()->attach($exercise->id);
+        }
+
+        // Kembalikan respon sukses secara rahasia (tanpa reload halaman)
+        return response()->json(['success' => true]);
+    }
 }

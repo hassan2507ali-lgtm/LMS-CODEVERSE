@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\PracticeExercise; // <-- Tambahkan import ini
 
 class User extends Authenticatable
 {
@@ -46,6 +47,7 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
@@ -54,5 +56,11 @@ class User extends Authenticatable
     public function enrollments()
     {
         return $this->hasMany(Enrollment::class);
+    }
+
+    // --- FITUR BARU: Relasi Latihan yang Selesai ---
+    public function completedExercises()
+    {
+        return $this->belongsToMany(PracticeExercise::class, 'practice_exercise_user')->withTimestamps();
     }
 }

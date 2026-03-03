@@ -15,6 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('practice_id')->constrained()->onDelete('cascade');
             $table->string('title');
+            
+            // INI KOLOM BAHASANYA KITA MASUKKAN LANGSUNG KE SINI
+            $table->string('language')->default('python'); 
+            
             $table->text('description')->nullable();
             $table->text('instructions')->nullable();
             $table->text('starter_code')->nullable();

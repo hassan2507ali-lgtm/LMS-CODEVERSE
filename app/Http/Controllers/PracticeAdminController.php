@@ -59,7 +59,6 @@ class PracticeAdminController extends Controller
             'title' => 'required|string|max:255',
             'category' => 'required|string|max:255',
             'description' => 'nullable|string',
-            // Ganti thumbnail jadi github_link
             'github_link' => 'nullable|string',
             'tags' => 'nullable|string',
             'content' => 'nullable|string',
@@ -102,6 +101,7 @@ class PracticeAdminController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
+            'language' => 'required|in:python,html,javascript', // <-- Validasi bahasa baru
             'description' => 'nullable|string',
             'instructions' => 'nullable|string',
             'starter_code' => 'nullable|string',
@@ -136,6 +136,7 @@ class PracticeAdminController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
+            'language' => 'required|in:python,html,javascript', // <-- Validasi bahasa baru
             'description' => 'nullable|string',
             'instructions' => 'nullable|string',
             'starter_code' => 'nullable|string',
