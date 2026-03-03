@@ -8,7 +8,6 @@
 
                 <h2 class="text-2xl font-semibold mb-6">Tambah Kursus Baru</h2>
 
-                {{-- Menampilkan error validasi (jika ada nanti) --}}
                 @if ($errors->any())
                     <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
                         <ul class="list-disc list-inside text-sm">
@@ -19,12 +18,10 @@
                     </div>
                 @endif
 
-                {{-- Form ini akan kita fungsikan di langkah berikutnya --}}
                 <form action="{{ route('admin.courses.store') }}" method="POST"> 
                     @csrf
                     <div class="space-y-6">
 
-                        <!-- Judul Kursus -->
                         <div>
                             <label for="title" class="block text-sm font-medium text-gray-700">Judul Kursus</label>
                             <input type="text" name="title" id="title" 
@@ -32,7 +29,20 @@
                                    required>
                         </div>
 
-                        <!-- Deskripsi -->
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700">Kategori</label>
+                            <select name="category" id="category" 
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white" required>
+                                <option value="" disabled selected>-- Pilih Kategori --</option>
+                                <option value="Programming">Programming</option>
+                                <option value="Web Development">Web Development</option>
+                                <option value="UI/UX Design">UI/UX Design</option>
+                                <option value="Python">Python</option>
+                                <option value="Data Science & Analytics">Data Science & Analytics</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+
                         <div>
                             <label for="description" class="block text-sm font-medium text-gray-700">Deskripsi Singkat</label>
                             <textarea name="description" id="description" rows="3" 
@@ -40,7 +50,6 @@
                                       required></textarea>
                         </div>
 
-                        <!-- Harga & Status Gratis -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="price" class="block text-sm font-medium text-gray-700">Harga (Rp)</label>
@@ -57,7 +66,6 @@
                             </div>
                         </div>
 
-                        <!-- Thumbnail URL -->
                         <div>
                             <label for="thumbnail" class="block text-sm font-medium text-gray-700">URL Thumbnail</label>
                             <input type="text" name="thumbnail" id="thumbnail" 
@@ -65,13 +73,12 @@
                                    placeholder="https://... (Gunakan placeholder jika kosong)">
                         </div>
 
-                        <!-- Tombol Submit -->
                         <div class="flex justify-end pt-4">
                             <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 mr-3">
                                 Batal
                             </a>
                             <button type="submit" 
-                                    class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 font-semibold">
+                                    class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-semibold">
                                 Simpan Kursus
                             </button>
                         </div>

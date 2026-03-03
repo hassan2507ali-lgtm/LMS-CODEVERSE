@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo; // <-- Tambahkan ini
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Lesson extends Model
 {
@@ -14,14 +14,31 @@ class Lesson extends Model
         'module_id', 'title', 'content_type', 'content', 'order',
     ];
 
-    /**
-     * Mendefinisikan relasi inverse one-to-many ke Model Module.
-     * (Satu Lesson dimiliki oleh satu Module)
-     * Nama method ini (module) akan digunakan untuk mengakses relasi: $lesson->module
-     */
     public function module(): BelongsTo
     {
-        // Laravel otomatis mencari foreign key 'module_id' di tabel ini ('lessons')
         return $this->belongsTo(Module::class);
+    }
+
+    // --- FITUR BARU: Auto-Convert Link YouTube ke Embed ---
+    public function getEmbedUrlAttribute()
+    {
+        // Pastikan ini adalah tipe video dan kontennya tidak kosong
+        if ($this->content_type !== 'video' || empty($this->content)) {
+            return null;
+        }
+
+        $url = $this->content; 
+
+        // Rumus (Regex) untuk mengambil ID Video dari URL biasa atau URL share HP
+        preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $url, $match);
+        
+        $videoId = $match[1] ?? null;
+
+        if ($videoId) {
+            return "https://www.youtube.com/embed/{$videoId}";
+        }
+
+        // Kalau ternyata bukan link YouTube (misal Vimeo), kembalikan aslinya
+        return $url; 
     }
 }

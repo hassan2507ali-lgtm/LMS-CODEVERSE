@@ -45,7 +45,7 @@
                     
                     <div class="flex-1 flex justify-between items-center">
                         <h2 class="text-xl font-mono font-bold text-gray-900 tracking-wide">
-                            Exercises List
+                            Module List
                         </h2>
                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
                     </div>
@@ -108,17 +108,7 @@
                 </div>
             </div>
 
-            <div class="relative z-10 flex items-center p-4 ml-0 sm:ml-1 mt-4 opacity-50 cursor-not-allowed">
-                <div class="w-8 h-8 rounded-full border-2 border-gray-300 text-gray-400 flex items-center justify-center flex-shrink-0 bg-white z-10 mr-5 font-mono text-sm">
-                    2
-                </div>
-                <div class="flex-1 flex justify-between items-center">
-                    <h2 class="text-xl font-mono font-bold text-gray-400 tracking-wide">
-                        Variables
-                    </h2>
-                    <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
-            </div>
+            
 
         </div>
     </div>

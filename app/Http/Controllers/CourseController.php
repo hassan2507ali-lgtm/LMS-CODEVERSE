@@ -10,26 +10,43 @@ use Illuminate\Support\Facades\Auth;
 
 class CourseController extends Controller
 {
-    private function getStaticCategories()
-    {
-        return ['Programming', 'Data Science & Analytics', 'UI/UX Design', 'Lainnya'];
-    }
-
     public function index(Request $request)
     {
-        $allCategories = $this->getStaticCategories();
-        $requestedCategory = $request->query('category');
+        // 1. Ambil daftar kategori dinamis langsung dari tabel courses!
+        // (Sekaligus mencegah kategori kosong ("") ikut tampil)
+        $allCategories = Course::whereNotNull('category')
+                               ->where('category', '!=', '')
+                               ->distinct()
+                               ->pluck('category')
+                               ->toArray();
+                               
+        $displayCategories = array_merge(['Semua'], $allCategories);
+
+        // 2. Tangkap parameter pencarian dari URL
+        $searchKeyword = $request->input('search');
+        $requestedCategory = $request->input('category');
+
         $query = Course::query();
         $activeCategory = 'Semua';
 
+        // 3. Logika Filter Kategori
         if ($requestedCategory && in_array($requestedCategory, $allCategories)) {
              $activeCategory = $requestedCategory;
+             $query->where('category', $activeCategory);
         }
 
-        $courses = $query->latest()->paginate(12);
-        $displayCategories = array_merge(['Semua'], $allCategories);
+        // 4. Logika Search Bar
+        if (!empty($searchKeyword)) {
+            $query->where(function($q) use ($searchKeyword) {
+                $q->where('title', 'like', '%' . $searchKeyword . '%')
+                  ->orWhere('description', 'like', '%' . $searchKeyword . '%');
+            });
+        }
 
-        return view('courses.course', compact('courses', 'displayCategories', 'activeCategory'));
+        // 5. Eksekusi Query dan tampilkan
+        $courses = $query->latest()->paginate(12);
+
+        return view('courses.course', compact('courses', 'displayCategories', 'activeCategory', 'searchKeyword'));
     }
 
     public function show($slug)
@@ -41,14 +58,11 @@ class CourseController extends Controller
         return view('courses.show', compact('course'));
     }
 
-    // === METHOD BARU UNTUK RUANG BELAJAR ===
     public function learn($slug, $lessonId)
     {
-        // 1. Ambil data course dan lesson yang sedang dibuka
         $course = Course::where('slug', $slug)->with('modules.lessons')->firstOrFail();
         $currentLesson = Lesson::findOrFail($lessonId);
 
-        // 2. Keamanan: Cek apakah user sudah login dan benar-benar sudah beli kelasnya
         if (!Auth::check()) {
             return redirect()->route('login');
         }
@@ -57,13 +71,11 @@ class CourseController extends Controller
                                 ->where('course_id', $course->id)
                                 ->exists();
 
-        // Jika nekat buka URL padahal belum beli, tendang balik ke halaman detail kelas
         if (!$isEnrolled) {
             return redirect()->route('courses.show', $course->slug)
                              ->with('error', 'Akses ditolak. Kamu harus membeli kelas ini terlebih dahulu.');
         }
 
-        // 3. Tampilkan halaman ruang belajar
         return view('courses.learn', compact('course', 'currentLesson'));
     }
 }

@@ -17,7 +17,8 @@ class Course extends Model
      */
     protected $fillable = [
         'title',
-        'slug',         // <-- Pastikan 'slug' ada di sini
+        'slug',
+        'category',     // <-- INI YANG BIKIN ERROR SEBELUMNYA KARENA BELUM ADA
         'description',
         'thumbnail',
         'price',
@@ -31,6 +32,7 @@ class Course extends Model
     {
         return $this->hasMany(Module::class)->orderBy('order', 'asc');
     }
+    
     public function transactions()
     {
         return $this->hasMany(Transaction::class);

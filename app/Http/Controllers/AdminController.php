@@ -41,6 +41,7 @@ class AdminController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
+            'category' => 'nullable|string|max:255', // <-- Validasi Kategori
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'is_free' => 'required|boolean',
@@ -66,6 +67,7 @@ class AdminController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
+            'category' => 'nullable|string|max:255', // <-- Validasi Kategori
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'is_free' => 'required|boolean',
