@@ -34,6 +34,32 @@
     <label for="github_link" class="block text-sm font-medium text-gray-700">Link GitHub (Opsional)</label>
     <input type="text" name="github_link" class="..." value="{{ old('github_link') }}" placeholder="https://github.com/username/repo">
 </div>
+{{-- PENGATURAN FREEMIUM --}}
+                        <div class="p-5 bg-gray-50 border border-gray-200 rounded-lg space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">🔒 Pengaturan Akses & Harga</h3>
+                            
+                            <div>
+                                <label for="is_free" class="block text-sm font-medium text-gray-700">Tipe Akses Latihan</label>
+                                <select name="is_free" id="is_free" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" onchange="togglePricing(this.value)">
+                                    <option value="1" {{ old('is_free', '1') == '1' ? 'selected' : '' }}>🆓 Gratis (Free)</option>
+                                    <option value="0" {{ old('is_free') == '0' ? 'selected' : '' }}>💰 Berbayar (Premium)</option>
+                                </select>
+                            </div>
+
+                            <div id="pricing_fields" style="display: {{ old('is_free', '1') == '0' ? 'block' : 'none' }};">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                    <div>
+                                        <label for="price" class="block text-sm font-medium text-gray-700">Harga (Rp)</label>
+                                        <input type="number" name="price" id="price" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" value="{{ old('price') }}" placeholder="Contoh: 50000">
+                                    </div>
+                                    <div>
+                                        <label for="free_exercises_count" class="block text-sm font-medium text-gray-700">Jumlah Soal Gratis (Trial)</label>
+                                        <input type="number" name="free_exercises_count" id="free_exercises_count" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" value="{{ old('free_exercises_count', 0) }}" placeholder="Contoh: 2">
+                                        <p class="text-xs text-gray-500 mt-1">Berapa soal pertama yang bisa diakses gratis untuk "cicip-cicip" sebelum membeli.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div>
                             <label for="description" class="block text-sm font-medium text-gray-700">Deskripsi Singkat</label>
@@ -57,4 +83,14 @@
         </div>
     </div>
 </div>
+<script>
+    function togglePricing(isFree) {
+        const pricingFields = document.getElementById('pricing_fields');
+        if (isFree == '0') {
+            pricingFields.style.display = 'block';
+        } else {
+            pricingFields.style.display = 'none';
+        }
+    }
+</script>
 @endsection

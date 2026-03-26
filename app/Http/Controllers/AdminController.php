@@ -213,4 +213,43 @@ class AdminController extends Controller
                          ->with('success', 'Lesson berhasil dihapus!');
     }
 
+    // ==========================================
+    // METHOD UNTUK LAPORAN TRANSAKSI (DENGAN FILTER)
+    // ==========================================
+    public function transactions(Request $request)
+    {
+        // 1. Mulai query dasar
+        $query = \App\Models\Transaction::with(['user', 'course', 'practice']);
+
+        // 2. Filter Pencarian (Cari berdasarkan Nama User, Email, atau ID Transaksi)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('reference_number', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($userQuery) use ($search) {
+                      $userQuery->where('name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // 3. Filter Rentang Tanggal (Dari & Sampai)
+        if ($request->filled('start_date')) {
+            $query->where('created_at', '>=', $request->start_date . ' 00:00:00');
+        }
+        if ($request->filled('end_date')) {
+            $query->where('created_at', '<=', $request->end_date . ' 23:59:59');
+        }
+
+        // 4. Hitung statistik pendapatan HANYA dari data yang sedang difilter
+        // Kita pakai (clone) agar query utamanya tidak berubah saat mengambil data tabel
+        $totalRevenue = (clone $query)->where('status', 'success')->sum('amount');
+        $totalSales = (clone $query)->where('status', 'success')->count();
+
+        // 5. Eksekusi query untuk tabel dengan Pagination
+        // withQueryString() berguna agar saat kita pindah halaman (page 2, dst), filter tanggalnya tidak hilang
+        $transactions = $query->latest()->paginate(20)->withQueryString();
+
+        return view('admin.transactions.index', compact('transactions', 'totalRevenue', 'totalSales'));
+    }
 }

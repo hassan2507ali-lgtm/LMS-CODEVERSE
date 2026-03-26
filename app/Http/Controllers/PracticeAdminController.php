@@ -62,6 +62,10 @@ class PracticeAdminController extends Controller
             'github_link' => 'nullable|string',
             'tags' => 'nullable|string',
             'content' => 'nullable|string',
+            // --- TAMBAHAN FREEMIUM ---
+            'is_free' => 'required|boolean',
+            'price' => 'nullable|integer|min:0',
+            'free_exercises_count' => 'required|integer|min:0',
         ]);
 
         if ($validatedData['title'] !== $practice->title) {

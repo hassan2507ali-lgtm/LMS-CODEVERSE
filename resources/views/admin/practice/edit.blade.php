@@ -121,7 +121,32 @@
                     </div>
                 </div>
                 @endif
+                {{-- PENGATURAN FREEMIUM --}}
+                <div class="p-6 bg-purple-50/50 border border-purple-100 rounded-xl space-y-4">
+                    <h3 class="text-lg font-bold text-purple-900 border-b border-purple-200 pb-2">🔒 Pengaturan Akses & Harga</h3>
+                    
+                    <div>
+                        <label for="is_free" class="block text-sm font-medium text-gray-700 mb-2">Tipe Akses Latihan</label>
+                        <select name="is_free" id="is_free" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" onchange="togglePricing(this.value)">
+                            <option value="1" {{ old('is_free', $practice->is_free) == true ? 'selected' : '' }}>🆓 Gratis (Free)</option>
+                            <option value="0" {{ old('is_free', $practice->is_free) == false ? 'selected' : '' }}>💰 Berbayar (Premium)</option>
+                        </select>
+                    </div>
 
+                    <div id="pricing_fields" style="display: {{ old('is_free', $practice->is_free) == false ? 'block' : 'none' }};">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label for="price" class="block text-sm font-medium text-gray-700 mb-2">Harga (Rp)</label>
+                                <input type="number" name="price" id="price" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" value="{{ old('price', $practice->price) }}" placeholder="Contoh: 50000">
+                            </div>
+                            <div>
+                                <label for="free_exercises_count" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Soal Gratis (Trial)</label>
+                                <input type="number" name="free_exercises_count" id="free_exercises_count" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" value="{{ old('free_exercises_count', $practice->free_exercises_count) }}" placeholder="Contoh: 2">
+                                <p class="text-xs text-gray-500 mt-1">Berapa soal pertama yang bisa diakses gratis oleh user yang belum beli.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {{-- Tags --}}
                 <div>
                     <label for="tags" class="block text-sm font-medium text-gray-700 mb-2">
@@ -178,5 +203,16 @@
             </form>
         </div>
     </div>
+
 </div>
+<script>
+    function togglePricing(isFree) {
+        const pricingFields = document.getElementById('pricing_fields');
+        if (isFree == '0') {
+            pricingFields.style.display = 'block';
+        } else {
+            pricingFields.style.display = 'none';
+        }
+    }
+</script>
 @endsection

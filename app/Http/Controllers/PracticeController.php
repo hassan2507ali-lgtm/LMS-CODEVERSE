@@ -60,6 +60,25 @@ class PracticeController extends Controller
             abort(404);
         }
 
+        // --- FITUR FREEMIUM GUARD ---
+        $isPremium = !$practice->is_free;
+        // Asumsi urutan soal berdasarkan $exercise->order
+        $isFreeExercise = $exercise->order <= $practice->free_exercises_count;
+        
+        // TODO: Nanti kita ganti dengan cek ke tabel transaksi kalau user sudah beli
+        // Cek ke tabel transaksi
+        $hasBought = \App\Models\Transaction::where('user_id', auth()->id())
+                        ->where('practice_id', $practice->id)
+                        ->where('status', 'success')
+                        ->exists();
+
+        // Jika ini soal premium, BUKAN jatah gratis, dan user BELUM beli -> TENDANG KEMBALI!
+        if ($isPremium && !$isFreeExercise && !$hasBought) {
+            return redirect()->route('practice.show', $practice->slug)
+                             ->with('error', '🔒 Soal ini adalah fitur Premium. Silakan beli akses untuk melanjutkan.');
+        }
+        // -----------------------------
+
         return view('practice.exercise', compact('practice', 'exercise'));
     }
 

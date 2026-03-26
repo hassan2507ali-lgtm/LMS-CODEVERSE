@@ -26,7 +26,8 @@ Route::get('/courses', [CourseController::class, 'index'])->name('courses.course
 Route::get('/courses/{slug}', [CourseController::class, 'show'])->name('courses.show');
 // Halaman Katalog Practice (Bisa dilihat publik agar tertarik)
 Route::get('/practice', [PracticeController::class, 'index'])->name('practice.index');
-
+// 🔥 RUTE BARU: Pintu Masuk Khusus Midtrans (TIDAK BOLEH DI-AUTH)
+Route::post('/midtrans/callback', [\App\Http\Controllers\CallbackController::class, 'midtransCallback']);
 
 // --- 2. Rute Autentikasi (Bawaan Breeze) ---
 require __DIR__.'/auth.php';
@@ -47,6 +48,9 @@ Route::middleware(['auth'])->group(function () {
     // Rute untuk memproses pembelian/checkout kelas menggunakan Midtrans (atau simulasi)
     Route::post('/checkout/{course}', [CheckoutController::class, 'process'])->name('checkout.process');
     
+    // 🔥 ROUTE BARU: Rute untuk memproses pembelian Practice (Freemium)
+    Route::post('/checkout/practice/{practice}', [CheckoutController::class, 'processPractice'])->name('checkout.practice');
+    
     // Rute Halaman Kelas Saya 
     Route::get('/my-courses', [MyCourseController::class, 'index'])->name('my-courses');
 
@@ -60,7 +64,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     
     // Rute Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-
+    //  ROUTE BARU: Laporan Transaksi
+    Route::get('/transactions', [AdminController::class, 'transactions'])->name('admin.transactions');
     // === Grup Rute CRUD Kursus ===
     Route::prefix('admin/courses')->name('admin.courses.')->group(function () {
         Route::get('/create', [AdminController::class, 'create'])->name('create');
