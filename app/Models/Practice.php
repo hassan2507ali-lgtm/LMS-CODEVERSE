@@ -11,21 +11,27 @@ class Practice extends Model
     use HasFactory;
 
     // Pastikan semua kolom ini ada di $fillable
-    protected $fillable = [
-        'title',
-        'slug',
-        'description',
-        'thumbnail',
-        'github_link',
-        'category',
-        'tags',
-        'content',
-    ];
+   // Pastikan semua kolom ini ada di $fillable
+   protected $fillable = [
+    'title',
+    'slug',
+    'description',
+    'thumbnail',
+    'github_link',
+    'category',
+    'tags',
+    'content',
+    'is_free',               // <-- TAMBAH INI
+    'price',                 // <-- TAMBAH INI
+    'free_exercises_count',  // <-- TAMBAH INI
+];
 
-    // Pastikan tags di-cast ke array
-    protected $casts = [
-        'tags' => 'array',
-    ];
+// Pastikan tags di-cast ke array
+protected $casts = [
+    'tags' => 'array',
+    'is_free' => 'boolean',  // <-- TAMBAH INI
+    'price' => 'integer',    // <-- TAMBAH INI
+];
 
     /**
      * Get the exercises for the practice

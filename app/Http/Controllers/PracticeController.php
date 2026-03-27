@@ -42,12 +42,18 @@ class PracticeController extends Controller
     // 2. Menampilkan detail satu topik latihan dan daftar soalnya
     public function show($slug)
     {
-        // Cari latihan berdasarkan slug, dan bawa serta daftar soalnya
-        $practice = Practice::where('slug', $slug)
-                            ->with('exercises')
-                            ->firstOrFail();
+        $practice = Practice::where('slug', $slug)->firstOrFail();
 
-        return view('practice.show', compact('practice'));
+        // 🔥 FITUR BARU: Mengelompokkan soal berdasarkan 'section_name' (Nama Modul)
+        $groupedExercises = $practice->exercises()
+                                     ->orderBy('order', 'asc')
+                                     ->get()
+                                     ->groupBy(function($exercise) {
+                                         // Jika ada soal yang belum dikasih nama modul, masuk ke "General Exercises"
+                                         return $exercise->section_name ?: 'General Exercises';
+                                     });
+
+        return view('practice.show', compact('practice', 'groupedExercises'));
     }
 
     // 3. Halaman ruang mengerjakan soal (Ruang Praktik)
@@ -59,6 +65,24 @@ class PracticeController extends Controller
         if ($exercise->practice_id !== $practice->id) {
             abort(404);
         }
+
+        // --- FITUR FREEMIUM GUARD ---
+        $isPremium = !$practice->is_free;
+        // Asumsi urutan soal berdasarkan $exercise->order
+        $isFreeExercise = $exercise->order <= $practice->free_exercises_count;
+        
+        // Cek ke tabel transaksi
+        $hasBought = \App\Models\Transaction::where('user_id', auth()->id())
+                        ->where('practice_id', $practice->id)
+                        ->where('status', 'success')
+                        ->exists();
+
+        // Jika ini soal premium, BUKAN jatah gratis, dan user BELUM beli -> TENDANG KEMBALI!
+        if ($isPremium && !$isFreeExercise && !$hasBought) {
+            return redirect()->route('practice.show', $practice->slug)
+                             ->with('error', '🔒 Soal ini adalah fitur Premium. Silakan beli akses untuk melanjutkan.');
+        }
+        // -----------------------------
 
         return view('practice.exercise', compact('practice', 'exercise'));
     }

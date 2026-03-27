@@ -110,4 +110,44 @@ class CheckoutController extends Controller
             return back()->with('error', 'Gagal memproses pembayaran: ' . $e->getMessage());
         }
     }
+    // ... method process() untuk Course biarkan saja ...
+
+    // TAMBAHKAN METHOD INI UNTUK MEMPROSES PEMBELIAN PRACTICE
+    public function processPractice(Request $request, \App\Models\Practice $practice)
+    {
+        $user = Auth::user();
+
+        // 1. Cek apakah user sudah pernah beli practice ini
+        $hasBought = Transaction::where('user_id', $user->id)
+                                ->where('practice_id', $practice->id)
+                                ->where('status', 'success')
+                                ->exists();
+
+        if ($hasBought) {
+            return back()->with('error', 'Kamu sudah memiliki akses premium ke latihan ini.');
+        }
+
+        // 2. Buat Transaksi Baru (Status: Pending)
+        $transaction = Transaction::create([
+            'user_id' => $user->id,
+            'practice_id' => $practice->id, // Mengisi practice_id, otomatis course_id kosong
+            'reference_number' => 'PRC-' . strtoupper(Str::random(10)), // Kode awalan PRC (Practice)
+            'amount' => $practice->price,
+            'status' => 'pending',
+        ]);
+
+        // 3. Mode Simulasi Pembayaran Lokal
+        try {
+            // Anggap saja pembayaran langsung sukses
+            $transaction->update([
+                'status' => 'success',
+                'payment_url' => 'simulasi-lokal'
+            ]);
+
+            return back()->with('success', 'Pembayaran Berhasil! Gembok latihan premium sudah terbuka.');
+            
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal memproses pembayaran: ' . $e->getMessage());
+        }
+    }
 }
