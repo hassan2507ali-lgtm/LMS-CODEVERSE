@@ -12,6 +12,7 @@ class PracticeExercise extends Model
 
     protected $fillable = [
         'practice_id',
+        'section_name',
         'title',
         'language', // <-- Izin untuk menyimpan bahasa
         'description',

@@ -8,6 +8,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PracticeAdminController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MyCourseController; 
+use App\Http\Controllers\CallbackController;
 
 // --- Rute Pancingan (Taruh di luar agar bisa dites siapa saja) ---
 Route::get('/tes-halaman', function () {
@@ -27,7 +28,7 @@ Route::get('/courses/{slug}', [CourseController::class, 'show'])->name('courses.
 // Halaman Katalog Practice (Bisa dilihat publik agar tertarik)
 Route::get('/practice', [PracticeController::class, 'index'])->name('practice.index');
 // 🔥 RUTE BARU: Pintu Masuk Khusus Midtrans (TIDAK BOLEH DI-AUTH)
-Route::post('/midtrans/callback', [\App\Http\Controllers\CallbackController::class, 'midtransCallback']);
+Route::post('/midtrans/callback', [CallbackController::class, 'midtransCallback']);
 
 // --- 2. Rute Autentikasi (Bawaan Breeze) ---
 require __DIR__.'/auth.php';
@@ -66,6 +67,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     //  ROUTE BARU: Laporan Transaksi
     Route::get('/transactions', [AdminController::class, 'transactions'])->name('admin.transactions');
+    
     // === Grup Rute CRUD Kursus ===
     Route::prefix('admin/courses')->name('admin.courses.')->group(function () {
         Route::get('/create', [AdminController::class, 'create'])->name('create');
@@ -95,18 +97,37 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     // === Grup Rute CRUD Practice ===
     Route::prefix('admin/practice')->name('admin.practice.')->group(function () {
         Route::get('/', [PracticeAdminController::class, 'index'])->name('index');
+        
+        // 🔥 ROUTE UNTUK AI GENERATOR
+        Route::post('/generate-ai', [PracticeAdminController::class, 'generateAi'])->name('generate-ai');
+        
         Route::get('/create', [PracticeAdminController::class, 'create'])->name('create');
         Route::post('/', [PracticeAdminController::class, 'store'])->name('store');
         Route::get('/{practice}/edit', [PracticeAdminController::class, 'edit'])->name('edit');
         Route::put('/{practice}', [PracticeAdminController::class, 'update'])->name('update');
         Route::delete('/{practice}', [PracticeAdminController::class, 'destroy'])->name('destroy');
         
-        // Manage Exercises
+        // ==========================================
+        // 🔥 RUTE MANAGE EXERCISES & MODUL LENGKAP
+        // ==========================================
+        
+        // Tampilkan halaman Manage Exercises
         Route::get('/{practice}/exercises', [PracticeAdminController::class, 'manageExercises'])->name('exercises.manage');
+        
+        // AI Generate khusus untuk nambah Modul/Soal Lanjutan
+        Route::post('/{practice}/exercises/generate-ai', [PracticeAdminController::class, 'generateAiExercises'])->name('exercises.generate-ai');
+
+        // 🔥 RUTE MENGUBAH NAMA MODUL (Mass Update)
+        Route::post('/{practice}/module/update', [PracticeAdminController::class, 'updateModuleName'])->name('exercises.module.update');
+
+        // Simpan, Edit, Update, dan Hapus Exercise secara Manual
         Route::post('/{practice}/exercises', [PracticeAdminController::class, 'storeExercise'])->name('exercises.store');
         Route::get('/{practice}/exercises/{exercise}/edit', [PracticeAdminController::class, 'editExercise'])->name('exercises.edit');
         Route::put('/{practice}/exercises/{exercise}', [PracticeAdminController::class, 'updateExercise'])->name('exercises.update');
         Route::delete('/{practice}/exercises/{exercise}', [PracticeAdminController::class, 'destroyExercise'])->name('exercises.destroy');
-    });
+        // ... rute module/update sebelumnya ...
 
+        // 🔥 RUTE BARU: Untuk menyimpan urutan Drag & Drop
+        Route::post('/{practice}/exercises/reorder', [PracticeAdminController::class, 'reorderExercises'])->name('exercises.reorder');
+    });
 });

@@ -1,102 +1,172 @@
 @extends('layouts.app')
+
 @section('content')
-<div class="py-12 pt-24">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-teal-500 hover:text-teal-700 font-semibold mb-4"><svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>Kembali ke Dashboard</a>
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
-            <div class="p-6 text-gray-900">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold">Kelola Practice Projects</h2>
-                    <a href="{{ route('admin.practice.create') }}" class="px-5 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 font-semibold">+ Tambah Proyek Baru</a>
-                </div>
-                @if (session('success'))
-                    <div class="mb-4 bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-md">{{ session('success') }}</div>
-                @endif
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preview</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul & Link</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($practices as $practice)
-                                <tr class="hover:bg-gray-50">
-                                    {{-- Preview Image Column --}}
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="relative w-24 h-16 rounded-lg overflow-hidden border border-gray-200 group">
-                                            <img src="{{ $practice->image_url }}" 
-                                                 alt="{{ $practice->title }}" 
-                                                 class="w-full h-full object-cover"
-                                                 onerror="this.src='https://placehold.co/200x150/e5e7eb/6b7280?text=No+Image'">
-                                            
-                                            {{-- GitHub Badge Overlay --}}
-                                            @if($practice->github_link)
-                                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-200 flex items-center justify-center">
-                                                    <svg class="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 24 24">
-                                                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                                                    </svg>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </td>
-                                    
-                                    {{-- Title & Link Column --}}
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm font-medium text-gray-900">{{ $practice->title }}</div>
-                                        {{-- Menampilkan Link GitHub --}}
-                                        @if($practice->github_link)
-                                            <a href="{{ $practice->github_link }}" target="_blank" class="text-xs text-blue-500 hover:underline flex items-center mt-1">
-                                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" /></svg>
-                                                Lihat di GitHub
-                                            </a>
-                                        @else
-                                            <span class="text-xs text-gray-400">No Link</span>
-                                        @endif
-                                    </td>
-                                    
-                                    {{-- Category Column --}}
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-md bg-teal-100 text-teal-800">
-                                            {{ $practice->category }}
-                                        </span>
-                                    </td>
-                                    
-                                    {{-- Tags Column --}}
-                                    <td class="px-6 py-4">
-                                        <div class="flex flex-wrap gap-1">
-                                            @if($practice->tags)
-                                                @foreach($practice->tags as $tag)
-                                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">{{ $tag }}</span>
-                                                @endforeach
-                                            @else
-                                                <span class="text-xs text-gray-400">-</span>
-                                            @endif
-                                        </div>
-                                    </td>
-                                    
-                                    {{-- Actions Column --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <a href="{{ route('admin.practice.exercises.manage', $practice->id) }}" class="text-teal-600 hover:text-teal-900 mr-3">Exercises</a>
-                                        <a href="{{ route('admin.practice.edit', $practice->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                        <form action="{{ route('admin.practice.destroy', $practice->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Anda yakin ingin menghapus proyek ini?');">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr><td colspan="5" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">Belum ada data proyek latihan.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+
+<style>
+    footer, .footer, #footer { display: none !important; }
+</style>
+
+<div class="min-h-screen bg-slate-50 flex pt-16">
+
+    {{-- ========================================== --}}
+    {{-- 🔥 SIDEBAR ADMIN PINTAR --}}
+    {{-- ========================================== --}}
+    <aside class="w-64 bg-white border-r border-gray-200 shadow-sm hidden md:flex flex-col fixed h-[calc(100vh-4rem)] z-10">
+        <div class="p-6 border-b border-gray-100">
+            <h2 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Ruang Kendali</h2>
+            <p class="text-lg font-bold text-gray-800 font-mono">Admin Panel</p>
+        </div>
+
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition {{ request()->routeIs('dashboard') ? 'bg-teal-50 text-teal-600' : 'text-gray-600 hover:bg-gray-50 hover:text-teal-600' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                Dashboard
+            </a>
+
+            <a href="{{ route('admin.practice.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition {{ request()->routeIs('admin.practice.*') ? 'bg-teal-50 text-teal-600' : 'text-gray-600 hover:bg-gray-50 hover:text-teal-600' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                Kelola Practice
+            </a>
+
+            <a href="{{ route('admin.transactions') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition {{ request()->routeIs('admin.transactions') ? 'bg-teal-50 text-teal-600' : 'text-gray-600 hover:bg-gray-50 hover:text-teal-600' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"></path></svg>
+                Data Transaksi
+            </a>
+        </nav>
+    </aside>
+
+    {{-- ========================================== --}}
+    {{-- 🔥 MAIN CONTENT --}}
+    {{-- ========================================== --}}
+    <main class="flex-1 md:ml-64 p-8">
+        
+        <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Kelola Practice 💻</h1>
+                <p class="text-gray-500 mt-1">Buat dan atur materi latihan studi kasus interaktif untuk siswa.</p>
             </div>
         </div>
+
+        @if(session('success'))
+            <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-md shadow-sm text-green-700 text-sm font-medium">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md shadow-sm text-red-700 text-sm font-medium">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        {{-- TABEL KELOLA PRACTICE --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-10">
+            
+            {{-- Header Tabel & Tombol Aksi --}}
+            <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/50">
+                <h2 class="text-lg font-bold text-gray-800">Daftar Materi Latihan</h2>
+                
+                <div class="flex gap-3">
+                    <a href="{{ route('admin.practice.create') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-lg shadow-sm transition">
+                        + Tambah Manual
+                    </a>
+                    
+                    <button onclick="document.getElementById('aiPracticeModal').classList.remove('hidden')" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:opacity-90 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        Generate dengan AI ✨
+                    </button>
+                </div>
+            </div>
+
+            {{-- Isi Tabel --}}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white border-b border-gray-100 text-gray-500 text-xs uppercase tracking-wider">
+                            <th class="px-6 py-4 font-medium">Judul Practice</th>
+                            <th class="px-6 py-4 font-medium">Kategori</th>
+                            <th class="px-6 py-4 font-medium">Harga / Akses</th>
+                            <th class="px-6 py-4 font-medium text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse ($practices as $practice)
+                            <tr class="hover:bg-gray-50/50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-gray-800 text-base">{{ $practice->title }}</div>
+                                    <div class="text-xs text-gray-400 mt-1 flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                        {{ $practice->exercises()->count() }} Exercises
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-md border border-gray-200">
+                                        {{ $practice->category }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if(!$practice->is_free && $practice->price > 0)
+                                        <div class="text-sm font-bold text-gray-800">Rp {{ number_format($practice->price, 0, ',', '.') }}</div>
+                                        <div class="text-[11px] text-gray-500 mt-0.5">{{ $practice->free_exercises_count }} Soal Gratis</div>
+                                    @else
+                                        <span class="px-3 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-full border border-green-100">Full Gratis</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 flex items-center justify-end gap-3">
+                                    <a href="{{ route('admin.practice.exercises.manage', $practice->id) }}" class="px-3 py-1.5 bg-teal-50 text-teal-600 hover:bg-teal-500 hover:text-white rounded-md text-sm font-medium transition">Kelola Soal</a>
+                                    <a href="{{ route('admin.practice.edit', $practice->id) }}" class="text-sm font-medium text-blue-500 hover:text-blue-700 transition">Edit Info</a>
+                                    
+                                    <form action="{{ route('admin.practice.destroy', $practice->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus materi latihan ini beserta seluruh soalnya?');" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-sm font-medium text-red-500 hover:text-red-700 transition">Hapus</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-6 py-16 text-center">
+                                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-200">
+                                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                                    </div>
+                                    <p class="text-gray-500 font-medium mb-1">Belum ada materi Practice.</p>
+                                    <p class="text-gray-400 text-sm">Gunakan tombol AI untuk membuat materi pertama kamu dengan instan!</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </main>
+</div>
+
+{{-- 🔥 MODAL AI GENERATE MATERI UTAMA --}}
+<div id="aiPracticeModal" class="fixed inset-0 z-50 hidden bg-gray-900/60 backdrop-blur-sm overflow-y-auto h-full w-full flex items-center justify-center">
+    <div class="relative mx-auto p-8 border w-full max-w-lg shadow-2xl rounded-2xl bg-white">
+        
+        <div class="text-center mb-6">
+            <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 font-mono">AI Practice Generator ✨</h3>
+            <p class="text-sm text-gray-500 mt-2">Masukkan satu topik, dan biarkan AI membuatkan silabus lengkap beserta studi kasus dari level dasar hingga menengah.</p>
+        </div>
+
+        <form action="{{ route('admin.practice.generate-ai') }}" method="POST">
+            @csrf
+            
+            <div class="mb-6">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Topik Materi Latihan</label>
+                <input type="text" name="topic" required placeholder="Contoh: Belajar Python untuk Data Science" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 shadow-sm text-gray-800">
+            </div>
+
+            <div class="flex items-center gap-3 mt-8">
+                <button type="button" onclick="document.getElementById('aiPracticeModal').classList.add('hidden')" class="w-1/2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium">Batal</button>
+                <button type="submit" onclick="this.innerHTML='Generating... ⏳'; this.classList.add('opacity-70', 'cursor-not-allowed');" class="w-1/2 px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition font-medium">Generate Silabus 🚀</button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection

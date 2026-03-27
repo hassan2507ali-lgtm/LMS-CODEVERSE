@@ -88,45 +88,69 @@
                         Complete these exercises step-by-step to master the topic. Click "Start" to open the workspace.
                     </p>
 
-                    @if ($practice->exercises->count() > 0)
-                        <div class="flex flex-col space-y-2">
-                            @foreach ($practice->exercises as $index => $exercise)
-                                @php
-                                    $isCompleted = in_array($exercise->id, $completedIds);
-                                    $isFreeExercise = ($index + 1) <= $practice->free_exercises_count;
-                                    // Logika Gembok: Jika ini kelas berbayar, bukan soal gratisan, dan user belum beli = DIKUNCI!
-                                    $isLocked = $isPremiumTutorial && !$isFreeExercise && !$hasBought;
-                                @endphp
+                    @if ($groupedExercises->count() > 0)
+                        
+                        @php 
+                            // Hitungan global supaya urutan soal dan batas Freemium tetap menyambung lintas modul
+                            $globalExerciseIndex = 0; 
+                        @endphp
 
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between py-3 border-b border-gray-100/50 last:border-0 group hover:bg-gray-50 px-2 rounded-lg transition duration-200 {{ $isLocked ? 'opacity-70' : '' }}">
-                                    
-                                    <div class="flex flex-col sm:flex-row sm:items-center flex-1 mb-3 sm:mb-0">
-                                        <span class="text-gray-500 font-mono text-sm w-32 mb-1 sm:mb-0">Exercise {{ $index + 1 }}</span>
-                                        <span class="text-gray-800 text-sm font-medium pr-4 flex items-center gap-2">
-                                            {{ $exercise->title }}
-                                            @if($isCompleted)
-                                                <svg class="w-5 h-5 text-[#a3e635]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                            @endif
-                                        </span>
+                        <div class="flex flex-col space-y-6">
+                            @foreach ($groupedExercises as $sectionName => $exercises)
+                                
+                                {{-- Kotak Grup Modul --}}
+                                <div class="border border-gray-100 rounded-xl overflow-hidden shadow-sm bg-white">
+                                    {{-- Header Modul --}}
+                                    <div class="bg-gray-50 border-b border-gray-100 px-5 py-3 flex items-center gap-3">
+                                        <div class="bg-slate-200 text-slate-600 p-1.5 rounded-md">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                        </div>
+                                        <h3 class="font-mono font-bold text-gray-800 text-lg">{{ $sectionName }}</h3>
                                     </div>
                                     
-                                    <div class="flex-shrink-0">
-                                        @if($isLocked)
-                                            {{-- TOMBOL GEMBOK (Akan scroll halus ke Banner Promo di bawah) --}}
-                                            <a href="#premium-banner" class="inline-flex items-center justify-center border-2 border-gray-200 bg-gray-50 text-gray-400 hover:text-purple-600 hover:border-purple-300 font-mono text-xs px-5 py-2 rounded shadow-sm uppercase tracking-widest min-w-[100px] transition">
-                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                                                Locked
-                                            </a>
-                                        @else
-                                            {{-- TOMBOL START/REVIEW NORMAL --}}
-                                            <a href="{{ route('practice.exercise.start', ['slug' => $practice->slug, 'exercise' => $exercise->id]) }}" 
-                                               class="inline-block border-2 font-mono text-xs px-5 py-2 rounded shadow-sm hover:shadow-md transition uppercase tracking-widest text-center min-w-[100px] 
-                                               {{ $isCompleted 
-                                                    ? 'border-[#a3e635] text-[#a3e635] hover:bg-[#a3e635] hover:text-slate-900 bg-transparent' 
-                                                    : 'border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-50' }}">
-                                                {{ $isCompleted ? 'Review' : 'Start' }}
-                                            </a>
-                                        @endif
+                                    {{-- Isi Modul (Daftar Soal) --}}
+                                    <div class="p-2 flex flex-col space-y-1">
+                                        @foreach ($exercises as $exercise)
+                                            @php
+                                                $globalExerciseIndex++;
+                                                $isCompleted = in_array($exercise->id, $completedIds);
+                                                $isFreeExercise = $globalExerciseIndex <= $practice->free_exercises_count;
+                                                // Logika Gembok: Jika ini kelas berbayar, bukan soal gratisan, dan user belum beli = DIKUNCI!
+                                                $isLocked = $isPremiumTutorial && !$isFreeExercise && !$hasBought;
+                                            @endphp
+
+                                            <div class="flex flex-col sm:flex-row sm:items-center justify-between py-3 border-b border-gray-50 last:border-0 group hover:bg-gray-50 px-4 rounded-lg transition duration-200 {{ $isLocked ? 'opacity-70' : '' }}">
+                                                
+                                                <div class="flex flex-col sm:flex-row sm:items-center flex-1 mb-3 sm:mb-0">
+                                                    <span class="text-gray-500 font-mono text-sm w-32 mb-1 sm:mb-0">Exercise {{ $globalExerciseIndex }}</span>
+                                                    <span class="text-gray-800 text-sm font-medium pr-4 flex items-center gap-2">
+                                                        {{ $exercise->title }}
+                                                        @if($isCompleted)
+                                                            <svg class="w-5 h-5 text-[#a3e635]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                                        @endif
+                                                    </span>
+                                                </div>
+                                                
+                                                <div class="flex-shrink-0">
+                                                    @if($isLocked)
+                                                        {{-- TOMBOL GEMBOK --}}
+                                                        <a href="#premium-banner" class="inline-flex items-center justify-center border-2 border-gray-200 bg-gray-50 text-gray-400 hover:text-purple-600 hover:border-purple-300 font-mono text-xs px-5 py-2 rounded shadow-sm uppercase tracking-widest min-w-[100px] transition">
+                                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                                            Locked
+                                                        </a>
+                                                    @else
+                                                        {{-- TOMBOL START/REVIEW NORMAL --}}
+                                                        <a href="{{ route('practice.exercise.start', ['slug' => $practice->slug, 'exercise' => $exercise->id]) }}" 
+                                                           class="inline-block border-2 font-mono text-xs px-5 py-2 rounded shadow-sm hover:shadow-md transition uppercase tracking-widest text-center min-w-[100px] 
+                                                           {{ $isCompleted 
+                                                                ? 'border-[#a3e635] text-[#a3e635] hover:bg-[#a3e635] hover:text-slate-900 bg-transparent' 
+                                                                : 'border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-50' }}">
+                                                            {{ $isCompleted ? 'Review' : 'Start' }}
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
                             @endforeach
