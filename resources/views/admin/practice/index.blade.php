@@ -2,6 +2,7 @@
 
 @section('content')
 
+{{-- 🔥 MANTRA MENGHILANGKAN FOOTER GLOBAL --}}
 <style>
     footer, .footer, #footer { display: none !important; }
 </style>
@@ -84,7 +85,7 @@
                     <thead>
                         <tr class="bg-white border-b border-gray-100 text-gray-500 text-xs uppercase tracking-wider">
                             <th class="px-6 py-4 font-medium">Judul Practice</th>
-                            <th class="px-6 py-4 font-medium">Kategori</th>
+                            <th class="px-6 py-4 font-medium text-center">Dataset</th>
                             <th class="px-6 py-4 font-medium">Harga / Akses</th>
                             <th class="px-6 py-4 font-medium text-right">Aksi</th>
                         </tr>
@@ -99,10 +100,15 @@
                                         {{ $practice->exercises()->count() }} Exercises
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-md border border-gray-200">
-                                        {{ $practice->category }}
-                                    </span>
+                                <td class="px-6 py-4 text-center">
+                                    @if($practice->database_file)
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-teal-50 text-teal-600 text-[10px] font-bold rounded-md border border-teal-100 shadow-sm uppercase">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                                            SQLite Active
+                                        </span>
+                                    @else
+                                        <span class="text-gray-300 text-xs">-</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4">
                                     @if(!$practice->is_free && $practice->price > 0)
@@ -125,12 +131,8 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-16 text-center">
-                                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-200">
-                                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
-                                    </div>
-                                    <p class="text-gray-500 font-medium mb-1">Belum ada materi Practice.</p>
-                                    <p class="text-gray-400 text-sm">Gunakan tombol AI untuk membuat materi pertama kamu dengan instan!</p>
+                                <td colspan="4" class="px-6 py-16 text-center text-gray-500">
+                                    Belum ada materi Practice.
                                 </td>
                             </tr>
                         @endforelse
@@ -142,7 +144,7 @@
     </main>
 </div>
 
-{{-- 🔥 MODAL AI GENERATE MATERI UTAMA --}}
+{{-- 🔥 MODAL AI GENERATE DENGAN UPLOAD DATASET --}}
 <div id="aiPracticeModal" class="fixed inset-0 z-50 hidden bg-gray-900/60 backdrop-blur-sm overflow-y-auto h-full w-full flex items-center justify-center">
     <div class="relative mx-auto p-8 border w-full max-w-lg shadow-2xl rounded-2xl bg-white">
         
@@ -150,21 +152,28 @@
             <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
             </div>
-            <h3 class="text-2xl font-bold text-gray-900 font-mono">AI Practice Generator ✨</h3>
-            <p class="text-sm text-gray-500 mt-2">Masukkan satu topik, dan biarkan AI membuatkan silabus lengkap beserta studi kasus dari level dasar hingga menengah.</p>
+            <h3 class="text-2xl font-bold text-gray-900 font-mono text-purple-600">AI Practice Generator ✨</h3>
+            <p class="text-sm text-gray-500 mt-2">Buat materi instan yang presisi sesuai dataset kamu.</p>
         </div>
 
-        <form action="{{ route('admin.practice.generate-ai') }}" method="POST">
+        <form action="{{ route('admin.practice.generate-ai') }}" method="POST" enctype="multipart/form-data">
             @csrf
             
-            <div class="mb-6">
+            <div class="mb-4">
                 <label class="block text-sm font-bold text-gray-700 mb-2">Topik Materi Latihan</label>
-                <input type="text" name="topic" required placeholder="Contoh: Belajar Python untuk Data Science" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 shadow-sm text-gray-800">
+                <input type="text" name="topic" required placeholder="Contoh: Belajar SQL untuk Data Analyst" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 shadow-sm text-gray-800 outline-none">
+            </div>
+
+            {{-- Input Dataset di Modal AI --}}
+            <div class="mb-6 p-4 bg-purple-50 rounded-xl border border-purple-100">
+                <label class="block text-sm font-bold text-purple-800 mb-2 italic">Upload Dataset (.sqlite) - Opsional</label>
+                <input type="file" name="database_file" accept=".sqlite,.db" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-purple-600 file:text-white font-semibold hover:file:bg-purple-700 transition cursor-pointer">
+                <p class="text-[10px] text-purple-400 mt-2 italic font-medium">* AI akan membaca kolom tabel di file ini agar soal SQL 100% akurat.</p>
             </div>
 
             <div class="flex items-center gap-3 mt-8">
                 <button type="button" onclick="document.getElementById('aiPracticeModal').classList.add('hidden')" class="w-1/2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium">Batal</button>
-                <button type="submit" onclick="this.innerHTML='Generating... ⏳'; this.classList.add('opacity-70', 'cursor-not-allowed');" class="w-1/2 px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition font-medium">Generate Silabus 🚀</button>
+                <button type="submit" onclick="this.innerHTML='AI Sedang Menganalisis Database... 🧠'; this.classList.add('opacity-70', 'cursor-not-allowed');" class="w-1/2 px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition font-medium">Generate Silabus 🚀</button>
             </div>
         </form>
     </div>

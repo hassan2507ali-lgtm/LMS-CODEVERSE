@@ -10,8 +10,8 @@
                 <p class="text-purple-100 text-sm mt-1">Perbarui informasi proyek latihan</p>
             </div>
 
-            {{-- Form --}}
-            <form action="{{ route('admin.practice.update', $practice->id) }}" method="POST" class="p-6 space-y-6">
+            {{-- Form (DITAMBAH ENCTYPE UNTUK UPLOAD FILE) --}}
+            <form action="{{ route('admin.practice.update', $practice->id) }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6">
                 @csrf
                 @method('PUT')
 
@@ -121,6 +121,7 @@
                     </div>
                 </div>
                 @endif
+                
                 {{-- PENGATURAN FREEMIUM --}}
                 <div class="p-6 bg-purple-50/50 border border-purple-100 rounded-xl space-y-4">
                     <h3 class="text-lg font-bold text-purple-900 border-b border-purple-200 pb-2">🔒 Pengaturan Akses & Harga</h3>
@@ -147,6 +148,29 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- 🔥 PENGATURAN DATABASE SQLITE (Opsional) --}}
+                <div class="p-6 bg-teal-50 border border-teal-100 rounded-xl">
+                    <label for="database_file" class="block text-sm font-bold text-teal-800 mb-2">
+                        <svg class="w-5 h-5 inline-block mr-1 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                        Upload File Database (.sqlite / .db) - Opsi SQL Advanced
+                    </label>
+                    <input type="file" name="database_file" id="database_file" accept=".sqlite,.db" class="w-full px-4 py-2 border border-white bg-white rounded-lg focus:ring-2 focus:ring-teal-500 text-sm">
+                    <p class="text-xs text-teal-600 mt-2">Upload dataset dari Kaggle (max 20MB) agar siswa bisa praktek SQL langsung di browser tanpa membebani server.</p>
+                    
+                    {{-- Indikator kalau sudah ada file yang ter-upload --}}
+                    @if($practice->database_file)
+                        <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 bg-white text-teal-700 text-sm font-bold rounded-md border border-teal-200 shadow-sm">
+                            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Dataset Aktif: {{ basename($practice->database_file) }}
+                        </div>
+                    @endif
+
+                    @error('database_file')
+                        <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 {{-- Tags --}}
                 <div>
                     <label for="tags" class="block text-sm font-medium text-gray-700 mb-2">

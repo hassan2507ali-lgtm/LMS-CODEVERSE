@@ -3,6 +3,9 @@
 @section('content')
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{{-- 🔥 IMPORT SQL.JS (WebAssembly) UNTUK MESIN SQL DI BROWSER --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 
 @php
     $langType = strtolower($exercise->language ?? 'python');
@@ -15,16 +18,18 @@
         $fileName = 'script.js';
         $panelTitle = 'Console Output';
         $defaultCode = $exercise->starter_code ?? "console.log('Hello');";
+    } elseif ($langType === 'sql') {
+        $fileName = 'query.sql';
+        $panelTitle = 'Query Result Table';
+        $defaultCode = $exercise->starter_code ?? "-- Tulis query SQL di bawah ini \nSELECT * FROM ...";
     } else {
         $fileName = 'script.py';
         $panelTitle = 'Terminal Output';
         $defaultCode = $exercise->starter_code ?? "# Write code below \n\nprint('hi')";
     }
 
-    // LOGIKA BARU: Cari Soal Berikutnya berdasarkan urutan (order)
     $nextExercise = $practice->exercises->where('order', '>', $exercise->order)->sortBy('order')->first();
     
-    // Jika ada soal berikutnya, arahkan ke sana. Jika ini soal terakhir, kembalikan ke daftar soal.
     $nextUrl = $nextExercise 
         ? route('practice.exercise.start', ['slug' => $practice->slug, 'exercise' => $nextExercise->id]) 
         : route('practice.show', $practice->slug);
@@ -58,18 +63,26 @@
                         <p class="text-gray-500 italic">{{ $exercise->description }}</p>
                     @endif
                     
-                    <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
-                        <h3 class="text-indigo-800 font-bold mb-2">🎯 Instruksi:</h3>
+                    <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100 relative">
+                        <h3 class="text-indigo-800 font-bold mb-2">📌 Instruksi:</h3>
                         {!! nl2br(e($exercise->instructions ?? 'Selesaikan kode di samping agar program berjalan dengan benar.')) !!}
+                        
+                        {{-- TOMBOL LIHAT SKEMA TABEL KHUSUS SQL --}}
+                        @if($langType === 'sql' && $practice->database_file)
+                            <button onclick="showSqlSchema()" class="mt-4 flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded shadow-sm hover:bg-indigo-700 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                                Lihat Tabel & Kolom Dataset
+                            </button>
+                        @endif
                     </div>
 
                     @if($exercise->hints)
                         <div class="mt-4">
                             <details class="group">
                                 <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-teal-600 hover:text-teal-700">
-                                    <span>💡 Butuh Bantuan? (Klik untuk melihat Hint)</span>
+                                    <span>💡 Butuh Bantuan? (Klik untuk Hint)</span>
                                     <span class="transition group-open:rotate-180">
-                                        <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                                        <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
                                     </span>
                                 </summary>
                                 <p class="text-gray-600 mt-3 group-open:animate-fadeIn bg-gray-50 p-3 rounded border">
@@ -116,7 +129,8 @@
                 <div class="bg-gray-200 text-gray-600 text-xs px-4 py-2 font-mono border-b border-gray-300 flex justify-between">
                     <span class="font-bold">{{ $panelTitle }}</span>
                 </div>
-                <div id="terminalOutput" class="flex-1 p-4 font-mono text-sm text-gray-800 overflow-y-auto whitespace-pre-wrap bg-gray-50 relative">
+                {{-- CLASS OVERFLOW DIUBAH AGAR BISA SCROLL TABEL KE SAMPING UNTUK SQL --}}
+                <div id="terminalOutput" class="flex-1 p-4 font-mono text-sm text-gray-800 overflow-auto whitespace-pre-wrap bg-gray-50 relative">
                     <span class="text-gray-400 italic">Output akan muncul di sini...</span>
                 </div>
             </div>
@@ -148,46 +162,106 @@
 
 <textarea id="solutionCode" class="hidden">{{ $exercise->solution_code }}</textarea>
 
-<script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
-
 <script>
     const executionLang = "{{ $langType }}"; 
+    // Ambil URL dataset SQLite dari server Laravel
+    const dbUrl = "{{ $practice->database_file ? asset('storage/' . $practice->database_file) : '' }}";
+    
+    // VARIABLES ENGINE
     let pyodideReadyPromise = null;
+    let sqlDb = null;
 
-    // FUNGSI LOAD PYTHON
-    async function initPyodide() {
-        if (!pyodideReadyPromise) {
-            pyodideReadyPromise = loadPyodide();
+    // ==========================================
+    // INIT ENGINE SQL & PYTHON
+    // ==========================================
+    async function initSQL() {
+        if (sqlDb) return sqlDb;
+        const terminal = document.getElementById('terminalOutput');
+        terminal.innerHTML = '<span class="text-indigo-600 font-bold">Mendownload dataset ke browser... ⏳</span>';
+        
+        try {
+            const SQL = await initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            });
+            
+            if (dbUrl) {
+                const response = await fetch(dbUrl);
+                const buffer = await response.arrayBuffer();
+                sqlDb = new SQL.Database(new Uint8Array(buffer));
+            } else {
+                sqlDb = new SQL.Database(); // Kosong jika tidak ada file
+            }
+            return sqlDb;
+        } catch(e) {
+            terminal.innerHTML = `<span class="text-red-500 font-bold">Gagal memuat Database SQL: ${e.message}</span>`;
+            throw e;
         }
+    }
+
+    async function initPyodide() {
+        if (!pyodideReadyPromise) pyodideReadyPromise = loadPyodide();
         return await pyodideReadyPromise;
     }
 
-    // --- FUNGSI EKSEKUSI JAVASCRIPT ---
     function runJS(code) {
         let output = "";
         const originalLog = console.log;
-        console.log = function(...args) {
-            output += args.join(' ') + '\n';
-        };
-        try {
-            eval(code);
-        } catch(e) {
-            output += "Error: " + e.message;
-        }
+        console.log = function(...args) { output += args.join(' ') + '\n'; };
+        try { eval(code); } catch(e) { output += "Error: " + e.message; }
         console.log = originalLog;
         return output.trim();
     }
 
     // ==========================================
-    // TOMBOL 1: RUN CODE (Hanya Menampilkan Hasil)
+    // RENDER HTML TABLE UNTUK HASIL SQL
+    // ==========================================
+    function renderSqlTable(res) {
+        if (!res || res.length === 0) return '<span class="text-gray-500 font-bold italic">Query berhasil, tidak ada baris yang ditampilkan.</span>';
+        
+        let html = '<table class="min-w-full divide-y divide-gray-200 border border-gray-300 shadow-sm bg-white"><thead class="bg-gray-100"><tr>';
+        res[0].columns.forEach(col => {
+            html += `<th class="px-3 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-200">${col}</th>`;
+        });
+        html += '</tr></thead><tbody class="divide-y divide-gray-200">';
+        
+        res[0].values.forEach((row, index) => {
+            let bgClass = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+            html += `<tr class="${bgClass} hover:bg-indigo-50 transition">`;
+            row.forEach(val => {
+                html += `<td class="px-3 py-2 whitespace-nowrap text-sm text-gray-700 border-r border-gray-200">${val === null ? '<i class="text-gray-400">NULL</i>' : val}</td>`;
+            });
+            html += '</tr>';
+        });
+        html += '</tbody></table>';
+        return html;
+    }
+
+    // FITUR LIHAT SKEMA TABEL SQL
+    async function showSqlSchema() {
+        try {
+            let db = await initSQL();
+            let res = db.exec("SELECT name as Table_Name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
+            let html = renderSqlTable(res);
+            
+            Swal.fire({
+                title: 'Struktur Dataset',
+                html: `<div class="overflow-x-auto text-left">${html}</div><p class="text-xs text-gray-500 mt-3">Kamu bisa melakukan SELECT ke tabel-tabel di atas.</p>`,
+                width: 600
+            });
+        } catch(e) {
+            Swal.fire('Error', 'Gagal memuat struktur tabel.', 'error');
+        }
+    }
+
+    // ==========================================
+    // TOMBOL 1: RUN CODE (Hanya Menampilkan)
     // ==========================================
     document.getElementById('runBtn').addEventListener('click', async function() {
         const code = document.getElementById('codeEditor').value;
         const terminal = document.getElementById('terminalOutput');
         const runBtn = document.getElementById('runBtn');
 
-        runBtn.innerHTML = 'Running...';
-        runBtn.disabled = true;
+        runBtn.innerHTML = 'Running...'; runBtn.disabled = true;
         
         if (executionLang === 'html') {
             terminal.innerHTML = ''; terminal.style.padding = '0'; terminal.style.backgroundColor = '#ffffff';
@@ -196,44 +270,39 @@
             terminal.appendChild(iframe);
             iframe.contentWindow.document.open(); iframe.contentWindow.document.write(code); iframe.contentWindow.document.close();
             
-            runBtn.innerHTML = '<svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg> Run Code';
-            runBtn.disabled = false;
+            runBtn.innerHTML = 'Run Code'; runBtn.disabled = false;
         } 
+        else if (executionLang === 'sql') {
+            terminal.style.padding = '0'; terminal.style.backgroundColor = '#ffffff';
+            try {
+                let db = await initSQL();
+                let result = db.exec(code);
+                terminal.innerHTML = renderSqlTable(result);
+            } catch (err) {
+                terminal.style.padding = '1rem'; terminal.style.backgroundColor = '#fef2f2';
+                terminal.innerHTML = `<div class="text-red-600 font-mono font-bold">SQL Error:</div><div class="text-red-500 mt-1">${err.message}</div>`;
+            }
+            runBtn.innerHTML = 'Run Code'; runBtn.disabled = false;
+        }
         else if (executionLang === 'javascript') {
             terminal.style.padding = '1rem'; terminal.style.backgroundColor = '#f9fafb';
             let out = runJS(code);
             terminal.innerHTML = `<span class="text-green-600">user@codeverse</span>:<span class="text-blue-600">~</span>$ node script.js<br><br><span class="text-gray-800 font-semibold">${out.replace(/\n/g, '<br>')}</span>`;
-            
-            runBtn.innerHTML = '<svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg> Run Code';
-            runBtn.disabled = false;
+            runBtn.innerHTML = 'Run Code'; runBtn.disabled = false;
         }
         else { // PYTHON
             terminal.style.padding = '1rem'; terminal.style.backgroundColor = '#f9fafb';
-            terminal.innerHTML = '<span class="text-indigo-600 font-bold">Menyiapkan mesin Python... ⏳</span>';
+            terminal.innerHTML = '<span class="text-indigo-600 font-bold">Menyiapkan mesin Python... 🐍</span>';
             try {
                 let pyodide = await initPyodide();
-                
-                pyodide.runPython(`
-import sys
-import io
-import builtins
-import js
-
-sys.stdout = io.StringIO()
-def custom_input(p=""):
-    res = js.prompt(p)
-    return res if res is not None else ""
-builtins.input = custom_input
-                `);
-                
+                pyodide.runPython(`import sys, io, builtins, js\nsys.stdout = io.StringIO()\ndef custom_input(p=""): return js.prompt(p) or ""\nbuiltins.input = custom_input`);
                 await pyodide.runPythonAsync(code);
                 let stdout = pyodide.runPython("sys.stdout.getvalue()");
                 terminal.innerHTML = `<span class="text-green-600">user@codeverse</span>:<span class="text-blue-600">~</span>$ python script.py<br><br><span class="text-gray-800 font-semibold">${stdout.replace(/\n/g, '<br>')}</span>`;
             } catch (error) {
                 terminal.innerHTML = `<span class="text-red-600 font-mono bg-red-50 p-2 block rounded mt-2">${error.message.replace(/\n/g, '<br>')}</span>`;
             } finally {
-                runBtn.innerHTML = '<svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg> Run Code';
-                runBtn.disabled = false;
+                runBtn.innerHTML = 'Run Code'; runBtn.disabled = false;
             }
         }
     });
@@ -261,6 +330,24 @@ builtins.input = custom_input
                 let solClean = solutionCode.replace(/\s+/g, '').toLowerCase();
                 isCorrect = userClean.includes(solClean) || userClean === solClean;
             } 
+            else if (executionLang === 'sql') {
+                let db = await initSQL();
+                let expectedOut = []; let userOut = [];
+                
+                try { expectedOut = db.exec(solutionCode); } catch(e) { console.error("Kunci jawaban error", e); }
+                try { userOut = db.exec(userCode); } catch(e) { }
+
+                // Pengecekan SQL: Apakah array output tabel user SAMA PERSIS dengan array output tabel kunci jawaban?
+                isCorrect = (JSON.stringify(expectedOut) === JSON.stringify(userOut)) && userOut.length > 0;
+                
+                if(!isCorrect) {
+                    Swal.fire({
+                        icon: 'error', title: 'Data Tabel Belum Sesuai',
+                        text: 'Hasil query kamu menghasilkan kolom atau baris yang berbeda dengan yang diminta.',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            }
             else if (executionLang === 'javascript') {
                 let userOut = runJS(userCode);
                 let expectedOut = runJS(solutionCode);
@@ -268,20 +355,7 @@ builtins.input = custom_input
             }
             else { // PYTHON
                 let pyodide = await initPyodide();
-                
-                pyodide.runPython(`
-import sys
-import io
-import builtins
-import js
-
-def custom_input(p=""):
-    res = js.prompt(p)
-    return res if res is not None else ""
-builtins.input = custom_input
-                `);
-                
-                pyodide.runPython(`sys.stdout = io.StringIO()`);
+                pyodide.runPython(`import sys, io\nsys.stdout = io.StringIO()`);
                 await pyodide.runPythonAsync(solutionCode);
                 let expectedOut = pyodide.runPython("sys.stdout.getvalue()").trim();
 
@@ -290,7 +364,6 @@ builtins.input = custom_input
                 let userOut = pyodide.runPython("sys.stdout.getvalue()").trim();
 
                 isCorrect = (userOut === expectedOut && expectedOut !== "");
-                
                 if(!isCorrect) {
                     Swal.fire({
                         icon: 'error', title: 'Jawaban Belum Tepat',
@@ -301,25 +374,16 @@ builtins.input = custom_input
 
             // JIKA BENAR!
             if(isCorrect) {
-                
-                // 1. KIRIM LAPORAN KE DATABASE SECARA DIAM-DIAM & TUNGGU SAMPAI SELESAI
                 try {
                     await fetch("{{ route('practice.exercise.complete', $exercise->id) }}", {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
                     });
-                } catch (err) {
-                    console.error("Gagal menyimpan progress:", err);
-                }
+                } catch (err) { }
 
-                // 2. TAMPILKAN POPUP KEMENANGAN
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Luar Biasa! 🎉',
-                    text: 'Jawaban kamu benar dan progress telah disimpan!',
+                    icon: 'success', title: 'Luar Biasa! 🎉',
+                    text: 'Tabel hasil query kamu sudah tepat sesuai instruksi!',
                     confirmButtonText: '{{ $nextExercise ? "Lanjut ke Soal Berikutnya" : "Kembali ke Daftar Soal" }}',
                     confirmButtonColor: '#0ea5e9'
                 }).then((result) => {
@@ -327,13 +391,13 @@ builtins.input = custom_input
                         window.location.href = "{!! $nextUrl !!}";
                     }
                 });
-            } else if (executionLang !== 'python') {
+            } else if (executionLang !== 'python' && executionLang !== 'sql') {
                  Swal.fire('Salah!', 'Coba periksa lagi kodenya. Hasil belum sesuai instruksi.', 'error');
             }
 
-        } catch (error) { // <-- INI YANG TADI TERHAPUS!
-            Swal.fire('Error Kode!', 'Terdapat error pada kodemu, perbaiki dan coba lagi.', 'error');
-        } finally { // <-- INI JUGA TADI TERHAPUS!
+        } catch (error) {
+            Swal.fire('Error Kode!', 'Terdapat syntax error pada kodemu, perbaiki dan coba lagi.', 'error');
+        } finally {
             submitBtn.innerHTML = 'Submit Answer'; submitBtn.disabled = false;
         }
     });
