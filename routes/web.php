@@ -9,6 +9,7 @@ use App\Http\Controllers\PracticeAdminController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MyCourseController; 
 use App\Http\Controllers\CallbackController;
+use App\Http\Controllers\UserController;
 
 // --- Rute Pancingan (Taruh di luar agar bisa dites siapa saja) ---
 Route::get('/tes-halaman', function () {
@@ -57,6 +58,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Rute Ruang Belajar (HARUS LOGIN & PUNYA KELAS)
     Route::get('/courses/{slug}/learn/{lesson}', [CourseController::class, 'learn'])->name('courses.learn');
+
+    // ROUTE BARU: Kelola User
+    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
 });
 
 
