@@ -35,7 +35,7 @@ Route::post('/midtrans/callback', [CallbackController::class, 'midtransCallback'
 require __DIR__.'/auth.php';
 
 
-// --- 3. Rute Pengguna Terdaftar (Wajib Login) ---
+// --- 3. Rute Pengguna Terdaftar (Wajib Login Biasa) ---
 Route::middleware(['auth'])->group(function () {
     
     // === Rute Latihan / Practice (Wajib Login) ===
@@ -59,8 +59,6 @@ Route::middleware(['auth'])->group(function () {
     // Rute Ruang Belajar (HARUS LOGIN & PUNYA KELAS)
     Route::get('/courses/{slug}/learn/{lesson}', [CourseController::class, 'learn'])->name('courses.learn');
 
-    // ROUTE BARU: Kelola User
-    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
 });
 
 
@@ -69,8 +67,12 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     
     // Rute Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-    //  ROUTE BARU: Laporan Transaksi
+    
+    //  ROUTE: Laporan Transaksi
     Route::get('/transactions', [AdminController::class, 'transactions'])->name('admin.transactions');
+    
+    // 🔥 ROUTE BARU: Kelola User (SEKARANG SUDAH AMAN DI DALAM SINI) 🔥
+    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
     
     // === Grup Rute CRUD Kursus ===
     Route::prefix('admin/courses')->name('admin.courses.')->group(function () {
@@ -129,7 +131,6 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/{practice}/exercises/{exercise}/edit', [PracticeAdminController::class, 'editExercise'])->name('exercises.edit');
         Route::put('/{practice}/exercises/{exercise}', [PracticeAdminController::class, 'updateExercise'])->name('exercises.update');
         Route::delete('/{practice}/exercises/{exercise}', [PracticeAdminController::class, 'destroyExercise'])->name('exercises.destroy');
-        // ... rute module/update sebelumnya ...
 
         // 🔥 RUTE BARU: Untuk menyimpan urutan Drag & Drop
         Route::post('/{practice}/exercises/reorder', [PracticeAdminController::class, 'reorderExercises'])->name('exercises.reorder');
