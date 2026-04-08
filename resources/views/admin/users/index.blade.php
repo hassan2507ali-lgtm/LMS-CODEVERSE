@@ -1,4 +1,4 @@
-@extends('Layouts.app') @section('content')
+@extends('layouts.app') @section('content')
 <div class="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100">
     <div class="flex justify-between items-center mb-6">
         <div>
