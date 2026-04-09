@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\PracticeExercise; // <-- Tambahkan import ini
+use Illuminate\Support\Facades\Cache;
 
 class User extends Authenticatable
 {
@@ -62,5 +63,10 @@ class User extends Authenticatable
     public function completedExercises()
     {
         return $this->belongsToMany(PracticeExercise::class, 'practice_exercise_user')->withTimestamps();
+    }
+    // --- FITUR BARU: Cek Status Online / Offline ---
+    public function isOnline()
+    {
+        return Cache::has('user-is-online-' . $this->id);
     }
 }

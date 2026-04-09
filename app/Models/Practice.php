@@ -21,9 +21,10 @@ class Practice extends Model
     'category',
     'tags',
     'content',
-    'is_free',               // <-- TAMBAH INI
-    'price',                 // <-- TAMBAH INI
-    'free_exercises_count',  // <-- TAMBAH INI
+    'database_file',
+    'is_free',               
+    'price',                 
+    'free_exercises_count',  
 ];
 
 // Pastikan tags di-cast ke array

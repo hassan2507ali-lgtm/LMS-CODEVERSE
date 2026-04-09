@@ -9,6 +9,7 @@ use App\Http\Controllers\PracticeAdminController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MyCourseController; 
 use App\Http\Controllers\CallbackController;
+use App\Http\Controllers\UserController;
 
 // --- Rute Pancingan (Taruh di luar agar bisa dites siapa saja) ---
 Route::get('/tes-halaman', function () {
@@ -34,8 +35,9 @@ Route::post('/midtrans/callback', [CallbackController::class, 'midtransCallback'
 require __DIR__.'/auth.php';
 
 
-// --- 3. Rute Pengguna Terdaftar (Wajib Login) ---
-Route::middleware(['auth'])->group(function () {
+// --- 3. Rute Pengguna Terdaftar (Wajib Login Biasa) ---
+// 🔥 MATA-MATA STATUS ONLINE DITAMBAHKAN DI SINI 🔥
+Route::middleware(['auth', \App\Http\Middleware\LogUserActivity::class])->group(function () {
     
     // === Rute Latihan / Practice (Wajib Login) ===
     // Halaman daftar soal (show)
@@ -57,16 +59,26 @@ Route::middleware(['auth'])->group(function () {
 
     // Rute Ruang Belajar (HARUS LOGIN & PUNYA KELAS)
     Route::get('/courses/{slug}/learn/{lesson}', [CourseController::class, 'learn'])->name('courses.learn');
+
 });
 
 
 // --- 4. Rute Panel Admin (Dilindungi 'auth', 'verified', dan 'admin') ---
-Route::middleware(['auth', 'verified', 'admin'])->group(function () {
+// 🔥 MATA-MATA STATUS ONLINE JUGA DITAMBAHKAN DI SINI 🔥
+Route::middleware(['auth', 'verified', 'admin', \App\Http\Middleware\LogUserActivity::class])->group(function () {
     
     // Rute Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-    //  ROUTE BARU: Laporan Transaksi
+    
+    //  ROUTE: Laporan Transaksi
     Route::get('/transactions', [AdminController::class, 'transactions'])->name('admin.transactions');
+    
+  // 🔥 ROUTE KELOLA USER (LENGKAP)
+  Route::prefix('admin/users')->name('admin.users.')->group(function () {
+    Route::get('/', [UserController::class, 'index'])->name('index');
+    Route::patch('/{user}/toggle-admin', [UserController::class, 'toggleAdmin'])->name('toggle-admin');
+    Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+});
     
     // === Grup Rute CRUD Kursus ===
     Route::prefix('admin/courses')->name('admin.courses.')->group(function () {
@@ -125,7 +137,6 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/{practice}/exercises/{exercise}/edit', [PracticeAdminController::class, 'editExercise'])->name('exercises.edit');
         Route::put('/{practice}/exercises/{exercise}', [PracticeAdminController::class, 'updateExercise'])->name('exercises.update');
         Route::delete('/{practice}/exercises/{exercise}', [PracticeAdminController::class, 'destroyExercise'])->name('exercises.destroy');
-        // ... rute module/update sebelumnya ...
 
         // 🔥 RUTE BARU: Untuk menyimpan urutan Drag & Drop
         Route::post('/{practice}/exercises/reorder', [PracticeAdminController::class, 'reorderExercises'])->name('exercises.reorder');

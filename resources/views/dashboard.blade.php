@@ -2,22 +2,32 @@
 
 @section('content')
 
+{{-- 🔥 MANTRA MENGHILANGKAN PADDING & GRADASI BAWAAN LAYOUT --}}
 <style>
     footer, .footer, #footer { display: none !important; }
+    /* Memaksa konten menempel ke atas jika layouts.app punya padding bawaan */
+    .py-12, .py-8 { padding-top: 0 !important; padding-bottom: 0 !important; }
+    
+    /* MANTRA BARU: Paksa background body halaman ini jadi putih bersih & hapus gradasi! */
+    body { 
+        background-color: #ffffff !important; 
+        background-image: none !important; 
+    }
 </style>
 
-<div class="min-h-screen bg-slate-50 flex pt-16">
+{{-- 🔥 DIBUAT FLEX ITEMS-START & BG-WHITE AGAR NYATU DENGAN HEADER --}}
+<div class="flex items-start bg-white min-h-screen w-full">
 
     {{-- ========================================== --}}
-    {{-- 🔥 SIDEBAR ADMIN PINTAR --}}
+    {{-- 🔥 SIDEBAR ADMIN PINTAR (ANTI KEPOTONG) --}}
     {{-- ========================================== --}}
-    <aside class="w-64 bg-white border-r border-gray-200 shadow-sm hidden md:flex flex-col fixed h-[calc(100vh-4rem)] z-10">
+    <aside class="w-64 bg-white border-r border-gray-200 shadow-sm hidden md:flex flex-col sticky top-0 h-screen z-10 overflow-y-auto">
         <div class="p-6 border-b border-gray-100">
             <h2 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Ruang Kendali</h2>
             <p class="text-lg font-bold text-gray-800 font-mono">Admin Panel</p>
         </div>
 
-        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+        <nav class="flex-1 p-4 space-y-1">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition {{ request()->routeIs('dashboard') ? 'bg-teal-50 text-teal-600' : 'text-gray-600 hover:bg-gray-50 hover:text-teal-600' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                 Dashboard
@@ -32,13 +42,18 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"></path></svg>
                 Data Transaksi
             </a>
+
+            <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition {{ request()->routeIs('admin.users.*') ? 'bg-teal-50 text-teal-600' : 'text-gray-600 hover:bg-gray-50 hover:text-teal-600' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                Kelola User
+            </a>
         </nav>
     </aside>
 
     {{-- ========================================== --}}
     {{-- 🔥 MAIN CONTENT (Kanan) --}}
     {{-- ========================================== --}}
-    <main class="flex-1 md:ml-64 p-8">
+    <main class="flex-1 p-8 min-h-screen">
         
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-800">Selamat datang, Admin! 👋</h1>
@@ -47,30 +62,30 @@
 
         {{-- WIDGET KARTU STATISTIK (Real-Time Data) --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            {{-- Kartu 1: Total Kursus --}}
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            {{-- Kartu 1: Total Kursus (Ubah bg-white jadi bg-gray-50 biar menonjol) --}}
+            <div class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Total Kursus</p>
                     <h3 class="text-3xl font-bold text-gray-800">{{ $courses->count() ?? 0 }}</h3>
                 </div>
-                <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                 </div>
             </div>
 
-            {{-- Kartu 2: Total Practice --}}
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            {{-- Kartu 2: Total Practice (Ubah bg-white jadi bg-gray-50 biar menonjol) --}}
+            <div class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Total Practice</p>
                     <h3 class="text-3xl font-bold text-gray-800">{{ \App\Models\Practice::count() }}</h3>
                 </div>
-                <div class="w-12 h-12 bg-teal-50 text-teal-500 rounded-full flex items-center justify-center">
+                <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
                 </div>
             </div>
 
-            {{-- Kartu 3: Pendapatan --}}
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            {{-- Kartu 3: Pendapatan (Ubah bg-white jadi bg-gray-50 biar menonjol) --}}
+            <div class="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Pendapatan</p>
                     <h3 class="text-3xl font-bold text-gray-800">
@@ -78,7 +93,7 @@
                         {{ number_format(\App\Models\Transaction::where('status', 'success')->sum('amount'), 0, ',', '.') }}
                     </h3>
                 </div>
-                <div class="w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center">
+                <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
             </div>
