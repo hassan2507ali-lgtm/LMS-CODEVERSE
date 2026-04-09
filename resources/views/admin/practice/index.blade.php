@@ -2,23 +2,32 @@
 
 @section('content')
 
-{{-- 🔥 MANTRA MENGHILANGKAN FOOTER GLOBAL --}}
+{{-- 🔥 MANTRA MENGHILANGKAN PADDING & GRADASI BAWAAN LAYOUT --}}
 <style>
     footer, .footer, #footer { display: none !important; }
+    /* Memaksa konten menempel ke atas jika layouts.app punya padding bawaan */
+    .py-12, .py-8 { padding-top: 0 !important; padding-bottom: 0 !important; }
+    
+    /* MANTRA BARU: Paksa background body halaman ini jadi putih bersih & hapus gradasi! */
+    body { 
+        background-color: #ffffff !important; 
+        background-image: none !important; 
+    }
 </style>
 
-<div class="min-h-screen bg-slate-50 flex pt-16">
+{{-- 🔥 DIBUAT FLEX ITEMS-START & BG-WHITE AGAR NYATU DENGAN HEADER --}}
+<div class="flex items-start bg-white min-h-screen w-full">
 
     {{-- ========================================== --}}
-    {{-- 🔥 SIDEBAR ADMIN PINTAR --}}
+    {{-- 🔥 SIDEBAR ADMIN PINTAR (ANTI KEPOTONG) --}}
     {{-- ========================================== --}}
-    <aside class="w-64 bg-white border-r border-gray-200 shadow-sm hidden md:flex flex-col fixed h-[calc(100vh-4rem)] z-10">
+    <aside class="w-64 bg-white border-r border-gray-200 shadow-sm hidden md:flex flex-col sticky top-0 h-screen z-10 overflow-y-auto">
         <div class="p-6 border-b border-gray-100">
             <h2 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Ruang Kendali</h2>
             <p class="text-lg font-bold text-gray-800 font-mono">Admin Panel</p>
         </div>
 
-        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+        <nav class="flex-1 p-4 space-y-1">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition {{ request()->routeIs('dashboard') ? 'bg-teal-50 text-teal-600' : 'text-gray-600 hover:bg-gray-50 hover:text-teal-600' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                 Dashboard
@@ -33,13 +42,18 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"></path></svg>
                 Data Transaksi
             </a>
+
+            <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition {{ request()->routeIs('admin.users.*') ? 'bg-teal-50 text-teal-600' : 'text-gray-600 hover:bg-gray-50 hover:text-teal-600' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                Kelola User
+            </a>
         </nav>
     </aside>
 
     {{-- ========================================== --}}
     {{-- 🔥 MAIN CONTENT --}}
     {{-- ========================================== --}}
-    <main class="flex-1 md:ml-64 p-8">
+    <main class="flex-1 p-8 min-h-screen">
         
         <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>

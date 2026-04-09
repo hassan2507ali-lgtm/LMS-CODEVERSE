@@ -36,7 +36,8 @@ require __DIR__.'/auth.php';
 
 
 // --- 3. Rute Pengguna Terdaftar (Wajib Login Biasa) ---
-Route::middleware(['auth'])->group(function () {
+// 🔥 MATA-MATA STATUS ONLINE DITAMBAHKAN DI SINI 🔥
+Route::middleware(['auth', \App\Http\Middleware\LogUserActivity::class])->group(function () {
     
     // === Rute Latihan / Practice (Wajib Login) ===
     // Halaman daftar soal (show)
@@ -63,7 +64,8 @@ Route::middleware(['auth'])->group(function () {
 
 
 // --- 4. Rute Panel Admin (Dilindungi 'auth', 'verified', dan 'admin') ---
-Route::middleware(['auth', 'verified', 'admin'])->group(function () {
+// 🔥 MATA-MATA STATUS ONLINE JUGA DITAMBAHKAN DI SINI 🔥
+Route::middleware(['auth', 'verified', 'admin', \App\Http\Middleware\LogUserActivity::class])->group(function () {
     
     // Rute Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
@@ -71,8 +73,12 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     //  ROUTE: Laporan Transaksi
     Route::get('/transactions', [AdminController::class, 'transactions'])->name('admin.transactions');
     
-    // 🔥 ROUTE BARU: Kelola User (SEKARANG SUDAH AMAN DI DALAM SINI) 🔥
-    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
+  // 🔥 ROUTE KELOLA USER (LENGKAP)
+  Route::prefix('admin/users')->name('admin.users.')->group(function () {
+    Route::get('/', [UserController::class, 'index'])->name('index');
+    Route::patch('/{user}/toggle-admin', [UserController::class, 'toggleAdmin'])->name('toggle-admin');
+    Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+});
     
     // === Grup Rute CRUD Kursus ===
     Route::prefix('admin/courses')->name('admin.courses.')->group(function () {
