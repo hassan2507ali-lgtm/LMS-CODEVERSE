@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-// --- Impor yang Dibutuhkan ---
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\Lesson;
@@ -17,31 +16,22 @@ class AdminController extends Controller
     // === METODE UNTUK CRUD KURSUS (BUKU) ===
     // ===================================================================
 
-    /**
-     * Menampilkan halaman utama dashboard admin (daftar kursus).
-     */
     public function index()
     {
         $courses = Course::latest()->get();
         return view('dashboard', compact('courses'));
     }
 
-    /**
-     * Menampilkan form untuk membuat kursus baru.
-     */
     public function create()
     {
         return view('admin.courses.create');
     }
 
-    /**
-     * Menyimpan data kursus baru dari form ke database.
-     */
     public function store(Request $request): RedirectResponse
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
-            'category' => 'nullable|string|max:255', // <-- Validasi Kategori
+            'category' => 'nullable|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'is_free' => 'required|boolean',
@@ -52,22 +42,16 @@ class AdminController extends Controller
         return redirect()->route('dashboard')->with('success', 'Kursus baru berhasil ditambahkan!');
     }
 
-    /**
-     * Menampilkan form untuk mengedit kursus yang sudah ada.
-     */
     public function edit(Course $course)
     {
         return view('admin.courses.edit', compact('course'));
     }
 
-    /**
-     * Meng-update data kursus yang ada di database.
-     */
     public function update(Request $request, Course $course): RedirectResponse
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
-            'category' => 'nullable|string|max:255', // <-- Validasi Kategori
+            'category' => 'nullable|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'is_free' => 'required|boolean',
@@ -80,9 +64,6 @@ class AdminController extends Controller
         return redirect()->route('dashboard')->with('success', 'Kursus berhasil diperbarui!');
     }
 
-    /**
-     * Menghapus kursus dari database.
-     */
     public function destroy(Course $course): RedirectResponse
     {
         $course->delete();
@@ -93,23 +74,12 @@ class AdminController extends Controller
     // === METODE UNTUK KELOLA KONTEN (MODUL & LESSON) ===
     // ===================================================================
 
-    /**
-     * Menampilkan halaman "Kelola Konten" (daftar modul & lesson).
-     */
     public function manageContent(Course $course)
     {
-        // Eager load relasi modules, dan di dalam modules, load relasi lessons
         $course->load('modules.lessons');
         return view('admin.courses.content', compact('course'));
     }
 
-    // ===================================================================
-    // === METODE UNTUK CRUD MODUL (BAB) ===
-    // ===================================================================
-
-    /**
-     * Menyimpan modul baru ke kursus yang ditentukan.
-     */
     public function storeModule(Request $request, Course $course): RedirectResponse
     {
         $validatedData = $request->validate(['title' => 'required|string|max:255']);
@@ -121,44 +91,26 @@ class AdminController extends Controller
         return back()->with('success', 'Modul baru berhasil ditambahkan!');
     }
 
-    /**
-     * Menampilkan form untuk mengedit modul.
-     */
     public function editModule(Module $module)
     {
         return view('admin.modules.edit', compact('module'));
     }
 
-    /**
-     * Menyimpan perubahan dari form edit modul.
-     */
     public function updateModule(Request $request, Module $module): RedirectResponse
     {
         $validatedData = $request->validate(['title' => 'required|string|max:255']);
         $module->update($validatedData);
         $courseId = $module->course_id;
-        return redirect()->route('admin.courses.content', $courseId)
-                         ->with('success', 'Modul berhasil diperbarui!');
+        return redirect()->route('admin.courses.content', $courseId)->with('success', 'Modul berhasil diperbarui!');
     }
 
-    /**
-     * Menghapus modul dari database (dan semua lesson di dalamnya).
-     */
     public function destroyModule(Module $module): RedirectResponse
     {
         $courseId = $module->course_id;
         $module->delete();
-        return redirect()->route('admin.courses.content', $courseId)
-                         ->with('success', 'Modul berhasil dihapus!');
+        return redirect()->route('admin.courses.content', $courseId)->with('success', 'Modul berhasil dihapus!');
     }
 
-    // ===================================================================
-    // === METODE UNTUK CRUD LESSON (MATERI) ===
-    // ===================================================================
-
-    /**
-     * Menyimpan lesson baru ke modul yang ditentukan.
-     */
     public function storeLesson(Request $request, Module $module): RedirectResponse
     {
         $validatedData = $request->validate(['lesson_title' => 'required|string|max:255']);
@@ -166,23 +118,17 @@ class AdminController extends Controller
         $module->lessons()->create([
             'title' => $validatedData['lesson_title'],
             'order' => $order,
-            'content_type' => 'text', // Default sementara
-            'content' => 'Konten pelajaran belum diisi.', // Default sementara
+            'content_type' => 'text',
+            'content' => 'Konten pelajaran belum diisi.',
         ]);
         return back()->with('success', 'Lesson baru berhasil ditambahkan!');
     }
 
-    /**
-     * Menampilkan form untuk mengedit lesson (isi materi).
-     */
     public function editLesson(Lesson $lesson)
     {
         return view('admin.lessons.edit', compact('lesson'));
     }
 
-    /**
-     * Menyimpan perubahan (isi materi) dari form edit lesson.
-     */
     public function updateLesson(Request $request, Lesson $lesson): RedirectResponse
     {
         $validatedData = $request->validate([
@@ -192,25 +138,14 @@ class AdminController extends Controller
         ]);
         $lesson->update($validatedData);
         $courseId = $lesson->module->course_id;
-        return redirect()->route('admin.courses.content', $courseId)
-                         ->with('success', 'Lesson berhasil diperbarui!');
+        return redirect()->route('admin.courses.content', $courseId)->with('success', 'Lesson berhasil diperbarui!');
     }
 
-    /**
-     * Menghapus lesson dari database.
-     * (INI ADALAH METHOD YANG HILANG DARI KODE ANDA)
-     */
     public function destroyLesson(Lesson $lesson): RedirectResponse
     {
-        // Simpan course_id sebelum dihapus, untuk redirect
         $courseId = $lesson->module->course_id;
-
-        // 1. Hapus lesson
         $lesson->delete();
-
-        // 2. Kembali ke halaman manage content
-        return redirect()->route('admin.courses.content', $courseId)
-                         ->with('success', 'Lesson berhasil dihapus!');
+        return redirect()->route('admin.courses.content', $courseId)->with('success', 'Lesson berhasil dihapus!');
     }
 
     // ==========================================
@@ -218,10 +153,8 @@ class AdminController extends Controller
     // ==========================================
     public function transactions(Request $request)
     {
-        // 1. Mulai query dasar
         $query = \App\Models\Transaction::with(['user', 'course', 'practice']);
 
-        // 2. Filter Pencarian (Cari berdasarkan Nama User, Email, atau ID Transaksi)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -233,7 +166,6 @@ class AdminController extends Controller
             });
         }
 
-        // 3. Filter Rentang Tanggal (Dari & Sampai)
         if ($request->filled('start_date')) {
             $query->where('created_at', '>=', $request->start_date . ' 00:00:00');
         }
@@ -241,15 +173,39 @@ class AdminController extends Controller
             $query->where('created_at', '<=', $request->end_date . ' 23:59:59');
         }
 
-        // 4. Hitung statistik pendapatan HANYA dari data yang sedang difilter
-        // Kita pakai (clone) agar query utamanya tidak berubah saat mengambil data tabel
         $totalRevenue = (clone $query)->where('status', 'success')->sum('amount');
         $totalSales = (clone $query)->where('status', 'success')->count();
-
-        // 5. Eksekusi query untuk tabel dengan Pagination
-        // withQueryString() berguna agar saat kita pindah halaman (page 2, dst), filter tanggalnya tidak hilang
         $transactions = $query->latest()->paginate(20)->withQueryString();
 
         return view('admin.transactions.index', compact('transactions', 'totalRevenue', 'totalSales'));
+    }
+
+    // ==========================================
+    // 🔥 METHOD UNTUK SAKELAR AKSES (ON / OFF)
+    // ==========================================
+    public function toggleAccess(\App\Models\Transaction $transaction)
+    {
+        // 1. SKENARIO MEMATIKAN AKSES (Turn OFF)
+        if ($transaction->status === 'success') {
+            $transaction->update(['status' => 'revoked']);
+
+            if ($transaction->course_id) {
+                \App\Models\Enrollment::where('user_id', $transaction->user_id)
+                    ->where('course_id', $transaction->course_id)
+                    ->delete();
+            }
+            return back()->with('success', "Akses untuk {$transaction->user->name} berhasil DICABUT.");
+        }
+
+        // 2. SKENARIO MENGHIDUPKAN AKSES (Turn ON)
+        $transaction->update(['status' => 'success']);
+
+        if ($transaction->course_id) {
+            \App\Models\Enrollment::firstOrCreate([
+                'user_id' => $transaction->user_id,
+                'course_id' => $transaction->course_id
+            ]);
+        }
+        return back()->with('success', "Akses untuk {$transaction->user->name} berhasil DIBERIKAN.");
     }
 }

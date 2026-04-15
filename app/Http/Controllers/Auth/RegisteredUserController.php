@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AnnouncementMail;
 
 class RegisteredUserController extends Controller
 {
@@ -39,8 +41,17 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            // 'is_admin' akan otomatis 0 (false) karena default di database
         ]);
+        
+        // Tambahkan kode ini:
+        $judul = "Selamat Datang di Code Verse Academy, " . $user->name . "! 🚀";
+        $pesan = "Akun kamu sudah aktif. Sekarang kamu resmi menjadi bagian dari komunitas programmer masa depan. Yuk, langsung pilih kelas pertamamu dan mulai belajar!";
+        
+        try {
+            Mail::to($user->email)->send(new AnnouncementMail($judul, $pesan));
+        } catch (\Exception $e) {
+            \Log::error("Gagal kirim welcome email: " . $e->getMessage());
+        }
 
         event(new Registered($user));
 
