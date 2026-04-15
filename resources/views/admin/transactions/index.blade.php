@@ -1,25 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-{{-- 🔥 MANTRA MENGHILANGKAN PADDING & GRADASI BAWAAN LAYOUT KHUSUS ADMIN --}}
 <style>
     footer, .footer, #footer { display: none !important; }
-    /* Memaksa konten menempel ke atas jika layouts.app punya padding bawaan */
     .py-12, .py-8 { padding-top: 0 !important; padding-bottom: 0 !important; }
-    
-    /* MANTRA BARU: Paksa background body halaman ini jadi putih bersih & hapus gradasi! */
-    body { 
-        background-color: #ffffff !important; 
-        background-image: none !important; 
-    }
+    body { background-color: #ffffff !important; background-image: none !important; }
 </style>
 
-{{-- 🔥 DIBUAT FLEX ITEMS-START & BG-WHITE AGAR NYATU DENGAN HEADER --}}
 <div class="flex items-start bg-white min-h-screen w-full">
 
-    {{-- ========================================== --}}
-    {{-- 🔥 SIDEBAR ADMIN PINTAR (ANTI KEPOTONG) --}}
-    {{-- ========================================== --}}
     <aside class="w-64 bg-white border-r border-gray-200 shadow-sm hidden md:flex flex-col sticky top-0 h-screen z-10 overflow-y-auto">
         <div class="p-6 border-b border-gray-100">
             <h2 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Ruang Kendali</h2>
@@ -28,7 +17,7 @@
 
         <nav class="flex-1 p-4 space-y-1">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition {{ request()->routeIs('dashboard') ? 'bg-teal-50 text-teal-600' : 'text-gray-600 hover:bg-gray-50 hover:text-teal-600' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                 Dashboard
             </a>
 
@@ -49,12 +38,8 @@
         </nav>
     </aside>
 
-    {{-- ========================================== --}}
-    {{-- 🔥 MAIN CONTENT --}}
-    {{-- ========================================== --}}
     <main class="flex-1 p-8 min-h-screen">
         
-        {{-- Header & Statistik Singkat --}}
         <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-gray-800">Laporan Transaksi 💰</h1>
@@ -73,10 +58,15 @@
             </div>
         </div>
 
-        {{-- 🔥 FORM PENCARIAN & FILTER TANGGAL --}}
+        {{-- 🔥 NOTIFIKASI SAKELAR --}}
+        @if(session('success'))
+            <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-xl shadow-sm text-green-700 text-sm font-bold flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                {{ session('success') }}
+            </div>
+        @endif
+
         <form action="{{ route('admin.transactions') }}" method="GET" class="mb-6 bg-gray-50 p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-end">
-            
-            {{-- Input Pencarian --}}
             <div class="flex-1 w-full">
                 <label for="search" class="block text-sm font-semibold text-gray-600 mb-1.5">Cari Transaksi</label>
                 <div class="relative">
@@ -86,26 +76,18 @@
                     <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Nama, email, atau ID TRX..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm transition shadow-sm">
                 </div>
             </div>
-
-            {{-- Input Tanggal Mulai --}}
             <div class="w-full md:w-auto">
                 <label for="start_date" class="block text-sm font-semibold text-gray-600 mb-1.5">Dari Tanggal</label>
                 <input type="date" name="start_date" id="start_date" value="{{ request('start_date') }}" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm transition shadow-sm text-gray-600">
             </div>
-
-            {{-- Input Tanggal Selesai --}}
             <div class="w-full md:w-auto">
                 <label for="end_date" class="block text-sm font-semibold text-gray-600 mb-1.5">Sampai Tanggal</label>
                 <input type="date" name="end_date" id="end_date" value="{{ request('end_date') }}" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm transition shadow-sm text-gray-600">
             </div>
-
-            {{-- Tombol Aksi --}}
             <div class="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
                 <button type="submit" class="px-5 py-2.5 bg-teal-500 text-white rounded-xl hover:bg-teal-600 text-sm font-bold transition shadow-sm w-full md:w-auto">
                     Filter Data
                 </button>
-                
-                {{-- Tombol Reset hanya muncul kalau ada filter yang sedang aktif --}}
                 @if(request()->anyFilled(['search', 'start_date', 'end_date']))
                     <a href="{{ route('admin.transactions') }}" class="px-5 py-2.5 bg-white text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-100 text-sm font-bold transition flex items-center justify-center w-full md:w-auto">
                         Reset
@@ -114,7 +96,6 @@
             </div>
         </form>
 
-        {{-- Tabel Transaksi --}}
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-10">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -125,6 +106,7 @@
                             <th scope="col" class="px-6 py-4 font-bold">Item yang Dibeli</th>
                             <th scope="col" class="px-6 py-4 font-bold text-right">Nominal</th>
                             <th scope="col" class="px-6 py-4 font-bold text-center">Status</th>
+                            <th scope="col" class="px-6 py-4 font-bold text-center">Akses (On/Off)</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -171,10 +153,28 @@
                                         </span>
                                     @endif
                                 </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    {{-- 🔥 TOMBOL SAKELAR ON / OFF --}}
+                                    <form action="{{ route('admin.transactions.toggle', $trx->id) }}" method="POST" onsubmit="return confirm('Yakin ingin mengubah hak akses pengguna ini?');">
+                                        @csrf
+                                        @method('PATCH')
+                                        @if($trx->status === 'success')
+                                            {{-- Sakelar Hijau (ON) --}}
+                                            <button type="submit" class="relative inline-flex h-6 w-11 items-center rounded-full bg-teal-500 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 hover:bg-teal-600 shadow-sm" title="Cabut Akses (Matikan)">
+                                                <span class="inline-block h-4 w-4 translate-x-6 rounded-full bg-white transition-transform shadow"></span>
+                                            </button>
+                                        @else
+                                            {{-- Sakelar Abu-abu (OFF) --}}
+                                            <button type="submit" class="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 hover:bg-gray-400 shadow-sm" title="Berikan Akses (Hidupkan)">
+                                                <span class="inline-block h-4 w-4 translate-x-1 rounded-full bg-white transition-transform shadow"></span>
+                                            </button>
+                                        @endif
+                                    </form>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-16 text-center">
+                                <td colspan="6" class="px-6 py-16 text-center">
                                     <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-200">
                                         <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                                     </div>
@@ -186,7 +186,6 @@
                 </table>
             </div>
             
-            {{-- Pagination --}}
             @if($transactions->hasPages())
                 <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
                     {{ $transactions->links() }}

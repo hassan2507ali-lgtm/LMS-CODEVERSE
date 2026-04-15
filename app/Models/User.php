@@ -24,6 +24,8 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
+        'role',          
+        'google_id',
     ];
 
     /**
@@ -69,4 +71,5 @@ class User extends Authenticatable
     {
         return Cache::has('user-is-online-' . $this->id);
     }
+    
 }
